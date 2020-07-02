@@ -1,6 +1,6 @@
 from vports import Port
 
-def verilog_parser(file_path):
+def verilog_parser(file_path, label):
     inputs = []
     outputs = []
     with open(file_path) as file:
@@ -22,7 +22,7 @@ def verilog_parser(file_path):
                                 i = i.replace(',','')
                                 _input = []
                                 for p in range(size+1):
-                                    _input.append(Port(i.replace(';','')+'_'+str(p), 'input', name))
+                                    _input.append(Port(i.replace(';',''), 'input', label))
                                 inputs.append(_input)
 
                     elif l=='output':
@@ -36,7 +36,7 @@ def verilog_parser(file_path):
                                 i = i.replace(',','')
                                 _output = []
                                 for p in range(size+1):
-                                    _output.append(Port(i.replace(';','')+'_'+str(p), 'output', name))
+                                    _output.append(Port(i.replace(';',''), 'output', label))
                                 outputs.append(_output)
     return inputs, outputs, name
 

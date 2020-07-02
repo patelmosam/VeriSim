@@ -12,7 +12,8 @@ class engine:
 
     def create_module(self, name):
         files = [c.file_path for c in self.layout.modules]
-        module(name, files, self.layout.modules, self.layout.wires, self.layout.IO_devices)
+
+        module(name, files, self.layout.modules, self.layout.wires, self.layout.buses, self.layout.IO_devices)
 
     def create_tb(self, name):
         template.testbanch(name, self.module.file_path, self.module)
@@ -26,27 +27,29 @@ class engine:
         return run_output
 
 if __name__=='__main__':
-    And1 = Module('and.v','a1')
-    And2 = Module('and.v','a2')
-    Not1 = Module('not.v','n1')
-    Not2 = Module('not.v','n2')
-    Or = Module('or.v','o1')
-    in1 = InputComponent('i1',1)
-    in2 = InputComponent('i2',1)
-    monitor = Monitor(1,1)
-    w1 = Wire(in1.ports[0][0], And1.inputs[0])
-    w2 = Wire(in2.ports[0][0], And2.inputs[1])
-    w3 = Wire(in1.ports[0][0], Not1.inputs[0])
-    w4 = Wire(in2.ports[0][0], Not2.inputs[0])
-    w5 = Wire(Not1.outputs[0], And2.inputs[0])
-    w6 = Wire(Not2.outputs[0], And2.inputs[1])
-    w7 = Wire(And1.outputs[0], Or.inputs[0])
-    w8 = Wire(And2.outputs[0], Or.inputs[1])
-    w9 = Wire(Or.outputs[0], monitor.ports[0])
-    L1 = Layout([And1, And2, Not1, Not2, Or], [w1, w2, w3, w4, w5, w6, w7, w8, w9], [in1, in2, monitor])
+    And1 = Module('verilog/and.v','a1')
+    And2 = Module('verilog/and.v','a2')
+    Or1 = Module('verilog/or.v','o1')
+    Or2 = Module('verilog/or.v','o2')
+    in1 = InputModule('i1',2)
+    in2 = InputModule('i2',2)
+    m1 = Monitor('m1',1)
+    m2 = Monitor('m2',1)
+    b1 = Bus(in1.ports, And1.inputs[0])
+    b2 = Bus(in1.ports, And2.inputs[0])
+    b3 = Bus(in2.ports, And1.inputs[1])
+    b4 = Bus(in2.ports, And2.inputs[1])
+    # print(type(And1.outputs[0][0]), type(Or1.inputs[0][0]))
+    w1 = Wire(And1.outputs[0][0], Or1.inputs[0][0])
+    w2 = Wire(And2.outputs[0][0], Or1.inputs[1][0])
+    w3 = Wire(And1.outputs[0][1], Or2.inputs[0][0])
+    w4 = Wire(And2.outputs[0][1], Or2.inputs[1][0])
+    w5 = Wire(Or1.outputs[0][0], m1.ports[0])
+    w6 = Wire(Or2.outputs[0][0], m2.ports[0])
+    L1 = Layout([And1,And2,Or1,Or2],[w1,w2,w3,w4,w5,w6],[b1,b2,b3,b4],[in1,in2,m1,m2])
     e = engine(L1,None)
     #out = e.run_component(mux)
-    e.create_module('andnot.v')
+    e.create_module('verilog/andor.v')
 
     # and_not = Component('andnot.v')
     # e2 = engine(None, and_not)
