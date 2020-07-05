@@ -1,13 +1,14 @@
 
 
 class Port:
-    def __init__(self, label, Type, module):
+    def __init__(self, label, Type, module, id):
         self.label = label
         self.type = Type
         self.module = module
+        self.id = id
         # self.size = size
 
-    def isequal(self, other):
+    def __eq__(self, other):
         if(other == None):
             return False
         if(not isinstance(other, Port)):
@@ -18,10 +19,23 @@ class Port:
             return True
         return False
 
+    def isequal(self, other):
+        if(other == None):
+            return False
+        if(not isinstance(other, Port)):
+            return False
+        if  self.label == other.label and \
+            self.module == other.module and \
+            self.type == other.type and \
+            self.id == other.id:
+            return True
+        return False
+
     def __str__(self):
-        return "[port: "+ self.label + ', ' \
+        return "Port([label: "+ self.label + ', ' \
                 'type: '+ self.type + ', ' \
-                'component: '+ self.module +  ']'
+                'module: '+ self.module +', '+ \
+                'id: '+ str(self.id) + '])'
 
 class InputModule:
     def __init__(self, label, size):
@@ -34,7 +48,7 @@ class InputModule:
 
     def make_ports(self):
         for i in range(self.size):
-            self.ports.append(Port(self.label,'output','InputModule'))
+            self.ports.append(Port(self.label,'output','InputModule', i))
             self.value.append(None)
 
 class Monitor:
@@ -47,4 +61,4 @@ class Monitor:
 
     def make_ports(self):
         for i in range(self.size):
-            self.ports.append(Port(self.label,'input','monitor'))
+            self.ports.append(Port(self.label,'input','monitor', i))

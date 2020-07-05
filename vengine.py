@@ -4,6 +4,7 @@ import subprocess
 from vtemplate import module, testbanch
 from vcomponent import *
 from vports import *
+from utils import combine_ports
 
 class engine:
     def __init__(self, layout, module):
@@ -12,11 +13,17 @@ class engine:
 
     def create_module(self, name):
         files = [c.file_path for c in self.layout.modules]
+        files = list(dict.fromkeys(files))
+        port_dict = self.layout.get_all_ports()
+        port_dict = combine_ports(port_dict)
+        size_dict = self.layout.get_port_size()
+        io_dict = self.layout.get_io_dict()
+        port_list = self.layout.get_port_list()
 
-        module(name, files, self.layout.modules, self.layout.wires, self.layout.buses, self.layout.IO_devices)
+        module(name, files, self.layout.modules, port_dict, size_dict, io_dict, port_list)
 
     def create_tb(self, name):
-        template.testbanch(name, self.module.file_path, self.module)
+        testbanch(name, self.module.file_path, self.module)
 
     def run_component(self, component):
         compile_command = 'iverilog ' + component.file_path + ' -o ' + component.file_path.split('.')[0] + '.out'
@@ -46,12 +53,13 @@ if __name__=='__main__':
     w4 = Wire(And2.outputs[0][1], Or2.inputs[1][0])
     w5 = Wire(Or1.outputs[0][0], m1.ports[0])
     w6 = Wire(Or2.outputs[0][0], m2.ports[0])
-    L1 = Layout([And1,And2,Or1,Or2],[w1,w2,w3,w4,w5,w6],[b1,b2,b3,b4],[in1,in2,m1,m2])
+    L1 = Layout([Or1,Or2,And1,And2],[w1,w2,w3,w4,w5,w6],[b1,b2,b3,b4],[in1,in2,m1,m2])
     e = engine(L1,None)
     #out = e.run_component(mux)
-    e.create_module('verilog/andor.v')
-
-    # and_not = Component('andnot.v')
-    # e2 = engine(None, and_not)
-    # e2.create_tb('andnot_tb.v')
+    e.create_module('andor.v')
+    # e.create_tb('')
+    and_or = Module('andor.v', 'andor')
+    # print(and_or)
+    e2 = engine(None, and_or)
+    e2.create_tb('andor_tb.v')
     # print(out)

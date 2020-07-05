@@ -22,7 +22,7 @@ def verilog_parser(file_path, label):
                                 i = i.replace(',','')
                                 _input = []
                                 for p in range(size+1):
-                                    _input.append(Port(i.replace(';',''), 'input', label))
+                                    _input.append(Port(i.replace(';',''), 'input', label, p))
                                 inputs.append(_input)
 
                     elif l=='output':
@@ -36,7 +36,7 @@ def verilog_parser(file_path, label):
                                 i = i.replace(',','')
                                 _output = []
                                 for p in range(size+1):
-                                    _output.append(Port(i.replace(';',''), 'output', label))
+                                    _output.append(Port(i.replace(';',''), 'output', label, p))
                                 outputs.append(_output)
     return inputs, outputs, name
 

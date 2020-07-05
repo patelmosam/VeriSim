@@ -1,47 +1,21 @@
 import os
+from utils import *
 
-def module(name, files, modules, wires, buses, IO_devices):
-    port_list = []
-    for c in modules:
-        oports = [pout for pout in c.outputs]
-        iports = [pin for pin in c.inputs]
-        port_list.append(oports+iports)
-    print(port_list)
-    io_dict = {'input':[], 'isize':[], 'output':[], 'osize':[]}
-    wire_list = []
-    in_module = []
-    out_module = []
-    for w in wires:
-        if w.From.module == 'InputModule':
-            io_dict['input'].append(w.To.module+'_'+w.To.label)
-            io_dict['isize'].append(1)
-            in_module.append(w.To.module)
-        if w.To.module == 'monitor':
-            io_dict['output'].append(w.From.module+'_'+w.From.label)
-            io_dict['osize'].append(1)
-            out_module.append(w.From.module)
-        else:
-            wire_list.append(w)
+def module(name, files, modules, port_dict, size_dict, io_dict, port_list):
     
-    bus_list = []
-    bus_size = []
-    for b in buses:
-        if b.From[0].module == 'InputModule':
-            io_dict['input'].append(b.To[0].module+'_'+b.To[0].label)
-            io_dict['isize'].append(b.get_size())
-            in_module.append(b.To[0].module)
-        if b.To[0].module == 'monitor':
-            io_dict['output'].append(b.From[0].module+'_'+b.From[0].label)
-            io_dict['osize'].append(b.get_size())
-            out_module.append(b.From[0].module)
-        else:
-            bus_list.append(b)
-            bus_size.append(b.get_size())
-    print(in_module, out_module)
+    label_list, port_size = make_port_label(port_list)
+    out_labels = get_labels_form_dict(port_dict, size_dict)
+    out_final = process_label_list(out_labels)
+    wires_label, wires_size = get_wire_list(port_dict, io_dict) 
+    
+    isize = list(dict.fromkeys(io_dict['isize']))
+    osize = list(dict.fromkeys(io_dict['osize']))
+    wsize = list(dict.fromkeys(wires_size))
+    '''-------------------------------------------------------------------------------------'''
 
     with open(name, 'w') as tb:
-        # include statements
-        
+
+        ''' include statements'''
         for i in files:
             tb.write('`include \"'+ i + '\" \n')
         tb.write('\n')
@@ -55,134 +29,133 @@ def module(name, files, modules, wires, buses, IO_devices):
             tb.write(i+', ')
         tb.seek(tb.tell()-2,os.SEEK_SET)
         tb.write(');\n')
+        tb.write('\n')
 
         # input/output declaration
-        for i, s in zip(io_dict['input'], io_dict['isize']):
+        # for i, s in zip(io_dict['input'], io_dict['isize']):
+        #     tb.write('input ')
+        #     if s!=1:
+        #         tb.write('['+str(s-1)+':0] ')
+        #         tb.write(i + ', ')            
+        #     tb.seek(tb.tell()-2,os.SEEK_SET)
+        #     tb.write(';\n')
+
+        for si in isize:
             tb.write('input ')
-            if s!=1:
-                tb.write('['+str(s-1)+':0] ')
-                tb.write(i + ', ')            
+            if si!=1:
+                tb.write('['+str(si-1)+':0] ')
+            for i, s in zip(io_dict['input'], io_dict['isize']):
+                if s==si:
+                    tb.write(i+', ')            
             tb.seek(tb.tell()-2,os.SEEK_SET)
             tb.write(';\n')
 
         # output declaration
-        for i, s in zip(io_dict['output'], io_dict['osize']):
-            tb.write('output ')
-            if s!=1:
-                tb.write('['+str(s-1)+':0] ')
-                tb.write(i + ', ') 
-            else:
-                tb.write(i + ', ')           
+        # for i, s in zip(io_dict['output'], io_dict['osize']):
+        #     tb.write('output ')
+        #     if s!=1:
+        #         tb.write('['+str(s-1)+':0] ')
+        #         tb.write(i + ', ') 
+        #     else:
+        #         tb.write(i + ', ')           
+        #     tb.seek(tb.tell()-2,os.SEEK_SET)
+        #     tb.write(';\n')
+        # tb.write('\n')
+
+        for so in osize:
+            tb.write('input ')
+            if so!=1:
+                tb.write('['+str(so-1)+':0] ')
+            for o, s in zip(io_dict['output'], io_dict['osize']):
+                if s==so:
+                    tb.write(o+', ')            
             tb.seek(tb.tell()-2,os.SEEK_SET)
             tb.write(';\n')
+        tb.write('\n')
 
-       
-        # # wire declaration
-        # module_wire = []
-        # for c in modules:
-        #     c.outputs.sort()
-        #     wire_port = []
-        #     for wo, wi in zip(c.outputs, c.inputs):
-        #         if not wo.label in io_dict['output']:
-        #             wire_port.append(wo)
-        #             module_wire.append(wo)
-        #         if not wi.label in io_dict['input']:
-        #             module_wire.append(wi)
-        #     size_list = [s.size for s in wire_port] 
-        #     # print(size_list)
-        #     for s in size_list:
-        #         tb.write('wire ')
-        #         if s!=1:
-        #             tb.write('['+str(s-1)+':0] ')
-        #         for i in wire_port:
-        #             if i.size==s:
-        #                 tb.write(c.name+'_'+i.label+', ')            
-        #         tb.seek(tb.tell()-2,os.SEEK_SET)
-        #         tb.write(';\n')
-        # tb.write('\n')
-        
-        # port_info = []
-        # for ports, iports, oports in zip(port_list, module_input, module_output):
-        #     port_dict = {}
-        #     for port in ports:
-        #         # print(port.label)
-        #         if port.type == 'output':
-        #             if port in module_wire:
-        #                 port_dict[port.label] = port.module + '_' + port.label
-        #             elif port in oports:
-        #                 port_dict[port.label] = port.label
-        #         elif port.type == 'input':
-        #             if port in module_wire:
-        #                 for w in wires:
-        #                     if w.To.isequal(port):
-        #                         port_dict[port.label] = w.From.module +'_'+ w.From.label
-        #             elif port in iports:
-        #                 port_dict[port.label] = port.label
-        #     port_info.append([port_dict])
-
-        # # module instantiation
-        # for c, i in zip(modules, range(len(modules))): 
-        #     tb.write(c.name +' '+ c.name+'_'+'uut(')
-        #     for pkey, pval in zip(port_info[i][0], port_info[i][0].values()):
-        #         tb.write('.'+ pkey + '('+ pval +'), ')
+        # wire declaration
+        # for label, size in zip(wires_label, wires_size):
+        #     tb.write('wire ')
+        #     if size!=1:
+        #         tb.write('['+str(size-1)+':0] ')
+        #         tb.write(label + ', ') 
+        #     else:
+        #         tb.write(label + ', ')           
         #     tb.seek(tb.tell()-2,os.SEEK_SET)
-        #     tb.write(');\n')
+        #     tb.write(';\n')        
         # tb.write('\n')
 
-        # tb.write('endmodule')
+        for sw in wsize:
+            tb.write('wire ')
+            if sw!=1:
+                tb.write('['+str(sw-1)+':0] ')
+            for label, size in zip(wires_label, wires_size):
+                if size==sw:
+                    tb.write(label+', ')            
+            tb.seek(tb.tell()-2,os.SEEK_SET)
+            tb.write(';\n')
+        tb.write('\n')
 
-def testbanch(name, files, modules):
+        # module instantiation
+        for c, l, i in zip(modules, label_list, out_final):
+            tb.write(c.name +' '+ c.label +'(')
+            for label, olabel in zip(l,i):
+                tb.write('.'+ label + '('+olabel+'), ')
+            tb.seek(tb.tell()-2,os.SEEK_SET)
+            tb.write(');\n')
+        tb.write('\n')
+
+        tb.write('endmodule')
+
+def testbanch(name, files, module):
     with open(name, 'w') as tb:
         # include statements
-        for i in files:
-            tb.write('`include \"'+ i + '\" \n')
+        
+        tb.write('`include \"'+ files + '\" \n')
         tb.write('\n')
 
         # module defination
         tb.write('module ' + name.split('.')[0] + ';\n')
             
         # reg declaration
-        for c in modules:
-            c.inputs.sort()
-            size_list = [s.size for s in c.inputs] 
-            size_list = list(dict.fromkeys(size_list))
-            # print(size_list)
-            for s in size_list:
-                tb.write('reg ')
-                if s!=1:
-                    tb.write('['+str(s-1)+':0] ')
-                for i in c.inputs:
-                    if i.size==s:
-                        tb.write(i.label+', ')            
-                tb.seek(tb.tell()-2,os.SEEK_SET)
-                tb.write(';\n')
+        isize, osize = [], []
+        for i,o in zip(module.inputs,module.outputs):
+            isize.append(len(i))
+            osize.append(len(o))
+        isize = list(dict.fromkeys(isize))
+        osize = list(dict.fromkeys(osize))
+           # print(size_list)
+        for s in isize:
+            tb.write('reg ')
+            if s!=1:
+                tb.write('['+str(s-1)+':0] ')
+            for i in module.inputs:
+                if len(i)==s:
+                    tb.write(i[0].label+', ')            
+            tb.seek(tb.tell()-2,os.SEEK_SET)
+            tb.write(';\n')
 
         # wire declaration
-        for c in modules:
-            c.outputs.sort()
-            size_list = [s.size for s in c.outputs] 
-            size_list = list(dict.fromkeys(size_list))
-            # print(size_list)
-            for s in size_list:
-                tb.write('wire ')
-                if s!=1:
-                    tb.write('['+str(s-1)+':0] ')
-                for i in c.outputs:
-                    if i.size==s:
-                        tb.write(i.label+', ')            
-                tb.seek(tb.tell()-2,os.SEEK_SET)
-                tb.write(';\n')
+        for s in osize:
+            tb.write('wire ')
+            if s!=1:
+                tb.write('['+str(s-1)+':0] ')
+            for i in module.outputs:
+                if len(i)==s:
+                    tb.write(i[0].label+', ')            
+            tb.seek(tb.tell()-2,os.SEEK_SET)
+            tb.write(';\n')
         tb.write('\n')
 
         # module instantiation
-        for c in modules: 
-            tb.write(c.name + ' uut(')
-            for out in c.outputs:
-                tb.write('.'+out.label + '('+out.label+'), ')
-            for i in c.inputs:
-                tb.write('.'+i.label + '('+i.label+'), ')
-            tb.seek(tb.tell()-2,os.SEEK_SET)
-            tb.write(');\n')
+        # for c in modules: 
+        tb.write(module.name + ' uut(')
+        for out in module.outputs:
+            tb.write('.'+out[0].label + '('+out[0].label+'), ')
+        for i in module.inputs:
+            tb.write('.'+i[0].label + '('+i[0].label+'), ')
+        tb.seek(tb.tell()-2,os.SEEK_SET)
+        tb.write(');\n')
         tb.write('\n')
 
         # stimulas code
