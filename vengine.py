@@ -4,7 +4,7 @@ import subprocess
 from vtemplate import module, testbanch
 from vcomponent import *
 from vports import *
-from utils import combine_ports
+from utils import *
 
 class engine:
     def __init__(self, layout, module):
@@ -16,8 +16,12 @@ class engine:
         files = list(dict.fromkeys(files))
         port_dict = self.layout.get_all_ports()
         port_dict = combine_ports(port_dict)
+        # print(port_dict)
+        # port_info = get_port_info(port_dict)
+        # print(port_info)
         size_dict = self.layout.get_port_size()
         io_dict = self.layout.get_io_dict()
+        # print(io_dict)
         port_list = self.layout.get_port_list()
 
         module(name, files, self.layout.modules, port_dict, size_dict, io_dict, port_list)

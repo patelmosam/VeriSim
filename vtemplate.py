@@ -31,15 +31,6 @@ def module(name, files, modules, port_dict, size_dict, io_dict, port_list):
         tb.write(');\n')
         tb.write('\n')
 
-        # input/output declaration
-        # for i, s in zip(io_dict['input'], io_dict['isize']):
-        #     tb.write('input ')
-        #     if s!=1:
-        #         tb.write('['+str(s-1)+':0] ')
-        #         tb.write(i + ', ')            
-        #     tb.seek(tb.tell()-2,os.SEEK_SET)
-        #     tb.write(';\n')
-
         for si in isize:
             tb.write('input ')
             if si!=1:
@@ -50,20 +41,8 @@ def module(name, files, modules, port_dict, size_dict, io_dict, port_list):
             tb.seek(tb.tell()-2,os.SEEK_SET)
             tb.write(';\n')
 
-        # output declaration
-        # for i, s in zip(io_dict['output'], io_dict['osize']):
-        #     tb.write('output ')
-        #     if s!=1:
-        #         tb.write('['+str(s-1)+':0] ')
-        #         tb.write(i + ', ') 
-        #     else:
-        #         tb.write(i + ', ')           
-        #     tb.seek(tb.tell()-2,os.SEEK_SET)
-        #     tb.write(';\n')
-        # tb.write('\n')
-
         for so in osize:
-            tb.write('input ')
+            tb.write('output ')
             if so!=1:
                 tb.write('['+str(so-1)+':0] ')
             for o, s in zip(io_dict['output'], io_dict['osize']):
@@ -72,18 +51,6 @@ def module(name, files, modules, port_dict, size_dict, io_dict, port_list):
             tb.seek(tb.tell()-2,os.SEEK_SET)
             tb.write(';\n')
         tb.write('\n')
-
-        # wire declaration
-        # for label, size in zip(wires_label, wires_size):
-        #     tb.write('wire ')
-        #     if size!=1:
-        #         tb.write('['+str(size-1)+':0] ')
-        #         tb.write(label + ', ') 
-        #     else:
-        #         tb.write(label + ', ')           
-        #     tb.seek(tb.tell()-2,os.SEEK_SET)
-        #     tb.write(';\n')        
-        # tb.write('\n')
 
         for sw in wsize:
             tb.write('wire ')
@@ -119,12 +86,13 @@ def testbanch(name, files, module):
             
         # reg declaration
         isize, osize = [], []
-        for i,o in zip(module.inputs,module.outputs):
+        for i in module.inputs:
             isize.append(len(i))
+        for o in module.outputs:
             osize.append(len(o))
         isize = list(dict.fromkeys(isize))
         osize = list(dict.fromkeys(osize))
-           # print(size_list)
+      
         for s in isize:
             tb.write('reg ')
             if s!=1:
@@ -148,7 +116,6 @@ def testbanch(name, files, module):
         tb.write('\n')
 
         # module instantiation
-        # for c in modules: 
         tb.write(module.name + ' uut(')
         for out in module.outputs:
             tb.write('.'+out[0].label + '('+out[0].label+'), ')

@@ -41,6 +41,7 @@ class InputModule:
     def __init__(self, label, size):
         self.label = label
         # self.no_of_ports = no_of_ports
+        self.name = 'InputModule'
         self.ports = []
         self.value = []
         self.size = size
@@ -48,12 +49,13 @@ class InputModule:
 
     def make_ports(self):
         for i in range(self.size):
-            self.ports.append(Port(self.label,'output','InputModule', i))
+            self.ports.append(Port(self.label,'output','Input', i))
             self.value.append(None)
 
 class Monitor:
     def __init__(self, label, size):
         # self.no_of_ports = no_of_ports
+        self.name = 'Monitor'
         self.label = label
         self.size = size
         self.ports = []

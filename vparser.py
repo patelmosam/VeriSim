@@ -32,7 +32,7 @@ def verilog_parser(file_path, label):
                                 s = i[1:].replace(':',' ')
                                 s = s.split(' ')
                                 size = int(s[0]) - int(s[1][:-1])
-                            if i!='output' and i[0]!='[':
+                            if i!='output' and i!='reg' and i[0]!='[':
                                 i = i.replace(',','')
                                 _output = []
                                 for p in range(size+1):

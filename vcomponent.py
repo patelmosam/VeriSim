@@ -60,25 +60,54 @@ class Layout:
 
     def connected_module_bus(self, bus_port):
         connected_ports = []
-        for p in bus_port:
-            for b in self.buses:
-                for i in range(b.get_size()):
+        c_ports_list = []
+        bus_ptr = 0
+        for b in self.buses:
+            c_ports = []
+            if len(bus_port)==b.get_size():
+                for p,i in zip(bus_port,range(b.get_size())):
                     if b.From[i].isequal(p):
-                        connected_ports.append(b.From[i])
-                    elif b.To[i].isequal(p):
-                        if b.From[i].module=='InputModule':
-                            connected_ports.append(b.To[i])
+                        if b.To[i].module == 'monitor':
+                            c_ports.append(b.To[i])
                         else:
-                            connected_ports.append(b.From[i])
-            for w in self.wires:
+                            c_ports.append(b.From[i])
+                    elif b.To[i].isequal(p):
+                        c_ports.append(b.From[i])
+                if len(c_ports)>0:
+                    connected_ports.append(c_ports)
+            elif len(bus_port) > b.get_size():
+                if bus_port[bus_ptr] == b.From[0]:
+                    for p1,i1 in zip(bus_port[bus_ptr:],range(b.get_size())):
+                        if b.To[i1].module == 'monitor':
+                            c_ports.append(b.To[i1])
+                        else:
+                            c_ports.append(b.From[i1])
+                        bus_ptr = p1.id + 1
+                    c_ports_list.append(c_ports)
+                elif bus_port[bus_ptr] == b.To[0]:
+                    for p1,i1 in zip(bus_port[bus_ptr:],range(b.get_size())):
+                        c_ports.append(b.From[i1])
+                        bus_ptr = p1.id + 1
+                    c_ports_list.append(c_ports)
+                if bus_ptr==len(bus_port):
+                    bus_ptr = 0
+
+        for w in self.wires:
+            c_ports = []
+            for p in bus_port:
                 if w.From.isequal(p):
-                    connected_ports.append(w.From)
-                elif w.To.isequal(p):
-                    if w.From.module=='InputModule':
-                        connected_ports.append(w.To)
+                    if w.To.module == 'monitor':
+                        c_ports.append(w.To)
                     else:
-                        connected_ports.append(w.From)
-        return connected_ports
+                        c_ports.append(w.From)
+                elif w.To.isequal(p):
+                    c_ports.append(w.From)
+            if len(c_ports)>0:
+                connected_ports.append(c_ports)
+        
+        if len(connected_ports)==0:
+            connected_ports.append(c_ports_list)
+        return connected_ports[0]
 
     def get_connected_ports(self, module):
         in_connections = []
@@ -102,40 +131,20 @@ class Layout:
             for i in m.inputs:
                 size_dict[i[0].module+'_'+i[0].label] = len(i)
             for o in m.outputs:
-                size_dict[o[0].module+'_'+o[0].label] = len(i)
+                size_dict[o[0].module+'_'+o[0].label] = len(o)
+        for m in self.IO_devices:
+            size_dict[m.ports[0].module+'_'+m.ports[0].label] = len(m.ports)
         return size_dict
 
     def get_io_dict(self):
         io_dict = {'input':[], 'isize':[], 'output':[], 'osize':[]}
-        wire_list = []
-        in_module = []
-        out_module = []
-        for w in self.wires:
-            if w.From.module == 'InputModule':
-                io_dict['input'].append(w.To.module+'_'+w.To.label)
-                io_dict['isize'].append(1)
-                in_module.append(w.To.module)
-            if w.To.module == 'monitor':
-                io_dict['output'].append(w.From.module+'_'+w.From.label)
-                io_dict['osize'].append(1)
-                out_module.append(w.From.module)
-            else:
-                wire_list.append(w)
-        
-        bus_list = []
-        bus_size = []
-        for b in self.buses:
-            if b.From[0].module == 'InputModule':
-                io_dict['input'].append(b.To[0].module+'_'+b.To[0].label)
-                io_dict['isize'].append(b.get_size())
-                in_module.append(b.To[0].module)
-            if b.To[0].module == 'monitor':
-                io_dict['output'].append(b.From[0].module+'_'+b.From[0].label)
-                io_dict['osize'].append(b.get_size())
-                out_module.append(b.From[0].module)
-            else:
-                bus_list.append(b)
-                bus_size.append(b.get_size())
+        for io in self.IO_devices:
+            if io.name=='InputModule':
+                io_dict['input'].append('Input_'+io.ports[0].label)
+                io_dict['isize'].append(len(io.ports))
+            if io.name=='Monitor':
+                io_dict['output'].append('monitor_'+io.ports[0].label)
+                io_dict['osize'].append(len(io.ports))
         return io_dict
 
 class Wire:
