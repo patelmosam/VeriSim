@@ -38,6 +38,9 @@ def verilog_parser(file_path, label):
                                 for p in range(size+1):
                                     _output.append(Port(i.replace(';',''), 'output', label, p))
                                 outputs.append(_output)
+                    
+                    elif l=="endmodule":
+                        return inputs, outputs, name
     return inputs, outputs, name
 
 # def outfile_parser(file_path):

@@ -4,10 +4,14 @@ from utils import *
 def module(name, files, modules, port_dict, size_dict, io_dict, port_list):
     
     label_list, port_size = make_port_label(port_list)
+    # print(label_list, port_size)
     out_labels = get_labels_form_dict(port_dict, size_dict)
+    # print(out_labels)
     out_final = process_label_list(out_labels)
+    # print(out_final)
     wires_label, wires_size = get_wire_list(port_dict, io_dict) 
-    
+    # print(wires_label,wires_size)
+
     isize = list(dict.fromkeys(io_dict['isize']))
     osize = list(dict.fromkeys(io_dict['osize']))
     wsize = list(dict.fromkeys(wires_size))

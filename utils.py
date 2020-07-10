@@ -48,6 +48,7 @@ def get_labels_form_dict(port_dict, size_dict):
     for ports in port_dict.values():
         module_labels = []
         for p in ports:
+            is_out_port = False
             labels = []
             for m in p:
                 try:
@@ -59,17 +60,25 @@ def get_labels_form_dict(port_dict, size_dict):
                             labels.append(name+'['+str(m[0].id)+']')
                         else:
                             labels.append(name+'['+str(m[-1].id)+':'+str(m[0].id)+']')
-                except AttributeError:
+                except KeyError:
+                    if len(m)==1:
+                        labels.append(name+'[0]')
+                    else:
+                        labels.append(name+'['+str(len(m)-1)+':0]')
+                except :
                     for n in m:
-                        name = n[0].module+'_'+n[0].label
-                        if len(n)==size_dict[name]:
-                            labels.append(name)
-                        elif len(n)<size_dict[name]:
-                            if len(n)==1:
-                                labels.append(name+'['+str(n[0].id)+']')
-                            else:
-                                labels.append(name+'['+str(n[-1].id)+':'+str(n[0].id)+']')
-                    
+                        try:
+                            name = n[0].module+'_'+n[0].label
+                            if len(n)==size_dict[name]:
+                                labels.append(name)
+                            elif len(n)<size_dict[name]:
+                                if len(n)==1:
+                                    labels.append(name+'['+str(n[0].id)+']')
+                                else:
+                                    labels.append(name+'['+str(n[-1].id)+':'+str(n[0].id)+']')
+                        except :
+                            labels.append(str(len(m))+'\'b0')
+                            break
             module_labels.append(labels)
         label_list.append(module_labels)
     return label_list
@@ -113,17 +122,20 @@ def get_wire_list(port_dict, io_dict):
                                 size.append(len(p))
                 except:
                     for q in p:
-                        if q[0].type=='output':
-                            wire = q[0].module+'_'+q[0].label
-                            # wire = p[0].label
-                            if not wire in io_dict['output'] and not wire in io_dict['input']:
-                                if wire in wire_list:
-                                    index = wire_list.index(wire)
-                                    if len(q)>size[index]:
-                                        size[index] = len(q)
-                                else:
-                                    wire_list.append(wire)
-                                    size.append(len(q))    
+                        try:
+                            if q[0].type=='output':
+                                wire = q[0].module+'_'+q[0].label
+                                # wire = p[0].label
+                                if not wire in io_dict['output'] and not wire in io_dict['input']:
+                                    if wire in wire_list:
+                                        index = wire_list.index(wire)
+                                        if len(q)>size[index]:
+                                            size[index] = len(q)
+                                    else:
+                                        wire_list.append(wire)
+                                        size.append(len(q))  
+                        except :
+                            break
     return wire_list, size
 
 def get_port_info(port_dict):

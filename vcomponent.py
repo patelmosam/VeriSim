@@ -58,64 +58,110 @@ class Layout:
             else:
                 return None
 
-    def connected_module_bus(self, bus_port):
-        connected_ports = []
-        c_ports_list = []
-        bus_ptr = 0
-        for b in self.buses:
-            c_ports = []
-            if len(bus_port)==b.get_size():
-                for p,i in zip(bus_port,range(b.get_size())):
-                    if b.From[i].isequal(p):
-                        if b.To[i].module == 'monitor':
-                            c_ports.append(b.To[i])
-                        else:
-                            c_ports.append(b.From[i])
-                    elif b.To[i].isequal(p):
-                        c_ports.append(b.From[i])
-                if len(c_ports)>0:
-                    connected_ports.append(c_ports)
-            elif len(bus_port) > b.get_size():
-                if bus_port[bus_ptr] == b.From[0]:
-                    for p1,i1 in zip(bus_port[bus_ptr:],range(b.get_size())):
-                        if b.To[i1].module == 'monitor':
-                            c_ports.append(b.To[i1])
-                        else:
-                            c_ports.append(b.From[i1])
-                        bus_ptr = p1.id + 1
-                    c_ports_list.append(c_ports)
-                elif bus_port[bus_ptr] == b.To[0]:
-                    for p1,i1 in zip(bus_port[bus_ptr:],range(b.get_size())):
-                        c_ports.append(b.From[i1])
-                        bus_ptr = p1.id + 1
-                    c_ports_list.append(c_ports)
-                if bus_ptr==len(bus_port):
-                    bus_ptr = 0
+    # def connected_module_bus(self, bus_port):
+    #     connected_ports = []
+    #     c_ports_list = []
+    #     bus_ptr = 0
+    #     wire_ptr = 0
+    #     for b in self.buses:
+    #         c_ports = []
+    #         if len(bus_port)==b.get_size():
+    #             for p,i in zip(bus_port,range(b.get_size())):
+    #                 if b.From[i].isequal(p):
+    #                     if b.To[i].module == 'monitor':
+    #                         c_ports.append(b.To[i])
+    #                     else:
+    #                         c_ports.append(b.From[i])
+    #                 elif b.To[i].isequal(p):
+    #                     c_ports.append(b.From[i])
+    #             if len(c_ports)>0:
+    #                 connected_ports.append(c_ports)
+    #         elif len(bus_port) > b.get_size():
+    #             if bus_port[bus_ptr] == b.From[0]:
+    #                 for p1,i1 in zip(bus_port[bus_ptr:],range(b.get_size())):
+    #                     if b.To[i1].module == 'monitor':
+    #                         c_ports.append(b.To[i1])
+    #                     else:
+    #                         c_ports.append(b.From[i1])
+    #                     bus_ptr = p1.id + 1
+    #                 c_ports_list.append(c_ports)
+    #             elif bus_port[bus_ptr] == b.To[0]:
+    #                 for p1,i1 in zip(bus_port[bus_ptr:],range(b.get_size())):
+    #                     c_ports.append(b.From[i1])
+    #                     bus_ptr = p1.id + 1
+    #                 c_ports_list.append(c_ports)
+    #             if bus_ptr==len(bus_port):
+    #                 bus_ptr = 0
+
+    #     for w in self.wires:
+    #         c_ports = []
+    #         # for p in bus_port:
+    #         if w.From.isequal(p[wire_ptr]):
+    #             if w.To.module == 'monitor':
+    #                 c_ports.append(w.To)
+    #                 wire_ptr+=1
+    #             else:
+    #                 c_ports.append(w.From)
+    #                 wire_ptr+=1
+    #         elif w.To.isequal(p[wire_ptr]):
+    #             c_ports.append(w.From)
+    #             wire_ptr+=1
+    #         if len(c_ports)>0:
+    #             connected_ports.append(c_ports)
+        
+    #     if len(connected_ports)==0:
+    #         connected_ports.append(c_ports_list)
+    #     return connected_ports[0]
+
+    def connected_module(self, bus_port, call):
+        port_id = [i for i in range(len(bus_port))]
+        c_ports = [None for _ in range(len(bus_port))]
 
         for w in self.wires:
-            c_ports = []
-            for p in bus_port:
-                if w.From.isequal(p):
+            for p in port_id:
+                if bus_port[p].isequal(w.From):
                     if w.To.module == 'monitor':
-                        c_ports.append(w.To)
+                        c_ports[p] = w.To
+                        port_id.remove(p)
+                        break
                     else:
-                        c_ports.append(w.From)
-                elif w.To.isequal(p):
-                    c_ports.append(w.From)
-            if len(c_ports)>0:
-                connected_ports.append(c_ports)
+                        c_ports[p] = w.From
+                        port_id.remove(p)
+                        break
+                elif bus_port[p].isequal(w.To):
+                    c_ports[p] = w.From
+                    port_id.remove(p)
+                    break
+
+        if None in c_ports:
+            for bus in self.buses:
+                for i in range(bus.get_size()):
+                    for p in port_id:
+                        if bus_port[p].isequal(bus.From[i]):
+                            if bus.To[i].module == 'monitor':
+                                c_ports[p] = bus.To[i]
+                                port_id.remove(p)
+                            else:
+                                c_ports[p] = bus.From[i]
+                                port_id.remove(p)
+                        elif bus_port[p].isequal(bus.To[i]):
+                            c_ports[p] = bus.From[i]
+                            port_id.remove(p)
+
+        if call == 'output':
+            for p in port_id:
+                port = Port('open','output', bus_port[0].module, 0)
+                c_ports[p] = port
         
-        if len(connected_ports)==0:
-            connected_ports.append(c_ports_list)
-        return connected_ports[0]
+        return c_ports
 
     def get_connected_ports(self, module):
         in_connections = []
         out_connections = []
         for in_port in module.inputs:
-            in_connections.append(self.connected_module_bus(in_port))
+            in_connections.append(self.connected_module(in_port, 'input'))
         for out_port in module.outputs:
-            out_connections.append(self.connected_module_bus(out_port))
+            out_connections.append(self.connected_module(out_port, 'output'))
         
         return out_connections + in_connections 
 
@@ -205,7 +251,4 @@ if __name__ == '__main__':
     # ports = L.connected_module_bus(AND.inputs[0])
     fdict = L.get_all_ports()
     flist = combine_ports(fdict)
-    print(flist)
-    # for l in fdict['a1']:
-    #     for j in l:
-    #         print(j)
+    
