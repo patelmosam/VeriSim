@@ -25,7 +25,7 @@ def module(name, files, modules, port_dict, size_dict, io_dict, port_list):
         tb.write('\n')
                 
         # module defination
-        
+        name = name.split('/')[-1]
         tb.write('module ' + name.split('.')[0] + '(')
         for o in io_dict['output']:
             tb.write(o+', ')
@@ -86,6 +86,7 @@ def testbanch(name, files, module):
         tb.write('\n')
 
         # module defination
+        name = name.split('/')[-1]
         tb.write('module ' + name.split('.')[0] + ';\n')
             
         # reg declaration

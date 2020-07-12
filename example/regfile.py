@@ -1,19 +1,24 @@
+import sys
+sys.path.insert(1, '/home/mosam/ICR/VeriSim/engine')
+
 from vengine import engine
 from vcomponent import *
 
-r0 = Module('verilog/registor32.v','r0')
-r1 = Module('verilog/registor32.v','r1')
-r2 = Module('verilog/registor32.v','r2')
-r3 = Module('verilog/registor32.v','r3')
-r4 = Module('verilog/registor32.v','r4')
-r5 = Module('verilog/registor32.v','r5')
-r6 = Module('verilog/registor32.v','r6')
-r7 = Module('verilog/registor32.v','r7')
+path = 'example/verilog/regfile/'
 
-dmux = Module('verilog/demux32.v', 'dmux')
+r0 = Module(path + 'registor32.v','r0')
+r1 = Module(path + 'registor32.v','r1')
+r2 = Module(path + 'registor32.v','r2')
+r3 = Module(path + 'registor32.v','r3')
+r4 = Module(path + 'registor32.v','r4')
+r5 = Module(path + 'registor32.v','r5')
+r6 = Module(path + 'registor32.v','r6')
+r7 = Module(path + 'registor32.v','r7')
 
-m1 = Module('verilog/mux32_32_1.v','m1')
-m2 = Module('verilog/mux32_32_1.v','m2')
+dmux = Module(path + 'demux32.v', 'dmux')
+
+m1 = Module(path + 'mux32_32_1.v','m1')
+m2 = Module(path + 'mux32_32_1.v','m2')
 
 clk = InputModule('clk',1)
 WE = InputModule('WE',1)
@@ -88,8 +93,8 @@ wires = [w1,w2,w3,w4,w5,w6,w7,w8,w11,w12,w13,w14,w15,w16,w17,w18]
 layout = Layout(modules, wires, buses, io_devices)
 
 e = engine(layout,None)
-e.create_module('regfile.v')
+e.create_module(path + 'regfile.v')
 
-regfile = Module('regfile.v','reg')
+regfile = Module(path + 'regfile.v','reg')
 e2 = engine(None, regfile)
-e2.create_tb('regfile_tb.v')
+e2.create_tb(path + 'regfile_tb.v')

@@ -1,10 +1,15 @@
+import sys
+sys.path.insert(1, '/home/mosam/ICR/VeriSim/engine')
+
 from vengine import engine
 from vcomponent import *
 
-add_sub = Module('verilog/add_sub.v','adder')
-logic = Module('verilog/logic.v','logic')
-shifter = Module('verilog/shifter32.v','shifter')
-mux = Module('verilog/mux32_4_2.v','mux')
+path = 'example/verilog/ALU/'
+
+add_sub = Module(path + 'add_sub.v','adder')
+logic = Module(path + 'logic.v','logic')
+shifter = Module(path + 'shifter32.v','shifter')
+mux = Module(path + 'mux32_4_2.v','mux')
 X = InputModule('x',32)
 Y = InputModule('y',32)
 C = InputModule('control',5)
@@ -44,9 +49,9 @@ io_devices = [X, Y, C, cin, over, out]
 layout = Layout(modules, wires, buses, io_devices)
 
 e = engine(layout, None)
-e.create_module('alu32_test.v')
+e.create_module(path + 'alu32_test.v')
 
-alu = Module('alu32_test.v', 'alu')
+alu = Module(path + 'alu32_test.v', 'alu')
 e1 = engine(None, alu)
-e1.create_tb('alutb_test.v')
+e1.create_tb(path + 'alutb_test.v')
 
