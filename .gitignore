@@ -1,4 +1,3 @@
-GUI/app.py
 GUI/drag_drop.py
 __pycache__/
 engine/__pycache__/
