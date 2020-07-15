@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainWindowLuHskb.ui'
+## Form generated from reading UI file 'mainWindowdEqrqx.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.0
 ##
@@ -14,17 +14,24 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
-
+from schematicWindow import SchematicEditor
+import icons_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1106, 842)
+        MainWindow.resize(1106, 863)
         self.actionNew = QAction(MainWindow)
         self.actionNew.setObjectName(u"actionNew")
+        icon = QIcon()
+        icon.addFile(u":/images/disk.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionNew.setIcon(icon)
         self.actionOpen = QAction(MainWindow)
         self.actionOpen.setObjectName(u"actionOpen")
+        icon1 = QIcon()
+        icon1.addFile(u":/images/images/printer.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionOpen.setIcon(icon1)
         self.actionSave = QAction(MainWindow)
         self.actionSave.setObjectName(u"actionSave")
         self.actionSave_As = QAction(MainWindow)
@@ -43,6 +50,11 @@ class Ui_MainWindow(object):
         self.actionCut.setObjectName(u"actionCut")
         self.actionAbout = QAction(MainWindow)
         self.actionAbout.setObjectName(u"actionAbout")
+        self.actionRun = QAction(MainWindow)
+        self.actionRun.setObjectName(u"actionRun")
+        icon2 = QIcon()
+        icon2.addFile(u":/images/images/arrow-curve.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionRun.setIcon(icon2)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout_2 = QGridLayout(self.centralwidget)
@@ -54,11 +66,13 @@ class Ui_MainWindow(object):
         self.frame.setFrameShadow(QFrame.Raised)
         self.gridLayout_3 = QGridLayout(self.frame)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.mdiArea = QMdiArea(self.frame)
-        self.mdiArea.setObjectName(u"mdiArea")
+        self.gridLayout_3.setContentsMargins(5, 5, 5, 5)
+        # self.textEdit = QTextEdit(self.frame)
+        # self.textEdit.setObjectName(u"textEdit")
+        self.ed = SchematicEditor(self.frame)
+        self.ed.setObjectName(u"SchemanticEdit")
 
-        self.gridLayout_3.addWidget(self.mdiArea, 0, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.ed, 0, 0, 1, 1)
 
 
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
@@ -90,64 +104,11 @@ class Ui_MainWindow(object):
         self.dockWidget_3.setAllowedAreas(Qt.AllDockWidgetAreas)
         self.dockWidgetContents_4 = QWidget()
         self.dockWidgetContents_4.setObjectName(u"dockWidgetContents_4")
-        self.gridLayout = QGridLayout(self.dockWidgetContents_4)
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.tableView = QTableView(self.dockWidgetContents_4)
-        self.tableView.setObjectName(u"tableView")
-
-        self.gridLayout.addWidget(self.tableView, 0, 0, 1, 1)
-
         self.dockWidget_3.setWidget(self.dockWidgetContents_4)
         MainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget_3)
-        self.dockWidget_4 = QDockWidget(MainWindow)
-        self.dockWidget_4.setObjectName(u"dockWidget_4")
-        self.dockWidget_4.setAllowedAreas(Qt.AllDockWidgetAreas)
-        self.dockWidgetContents_5 = QWidget()
-        self.dockWidgetContents_5.setObjectName(u"dockWidgetContents_5")
-        self.horizontalLayout = QHBoxLayout(self.dockWidgetContents_5)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.pushButton = QPushButton(self.dockWidgetContents_5)
-        self.pushButton.setObjectName(u"pushButton")
-
-        self.horizontalLayout.addWidget(self.pushButton)
-
-        self.pushButton_2 = QPushButton(self.dockWidgetContents_5)
-        self.pushButton_2.setObjectName(u"pushButton_2")
-
-        self.horizontalLayout.addWidget(self.pushButton_2)
-
-        self.pushButton_3 = QPushButton(self.dockWidgetContents_5)
-        self.pushButton_3.setObjectName(u"pushButton_3")
-
-        self.horizontalLayout.addWidget(self.pushButton_3)
-
-        self.pushButton_4 = QPushButton(self.dockWidgetContents_5)
-        self.pushButton_4.setObjectName(u"pushButton_4")
-
-        self.horizontalLayout.addWidget(self.pushButton_4)
-
-        self.pushButton_5 = QPushButton(self.dockWidgetContents_5)
-        self.pushButton_5.setObjectName(u"pushButton_5")
-
-        self.horizontalLayout.addWidget(self.pushButton_5)
-
-        self.pushButton_6 = QPushButton(self.dockWidgetContents_5)
-        self.pushButton_6.setObjectName(u"pushButton_6")
-
-        self.horizontalLayout.addWidget(self.pushButton_6)
-
-        self.pushButton_7 = QPushButton(self.dockWidgetContents_5)
-        self.pushButton_7.setObjectName(u"pushButton_7")
-
-        self.horizontalLayout.addWidget(self.pushButton_7)
-
-        self.pushButton_8 = QPushButton(self.dockWidgetContents_5)
-        self.pushButton_8.setObjectName(u"pushButton_8")
-
-        self.horizontalLayout.addWidget(self.pushButton_8)
-
-        self.dockWidget_4.setWidget(self.dockWidgetContents_5)
-        MainWindow.addDockWidget(Qt.TopDockWidgetArea, self.dockWidget_4)
+        self.toolBar = QToolBar(MainWindow)
+        self.toolBar.setObjectName(u"toolBar")
+        MainWindow.addToolBar(Qt.TopToolBarArea, self.toolBar)
 
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -167,6 +128,13 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.actionPaste)
         self.menuEdit.addAction(self.actionCut)
         self.menuHelp.addAction(self.actionAbout)
+        self.toolBar.addAction(self.actionNew)
+        self.toolBar.addAction(self.actionOpen)
+        self.toolBar.addAction(self.actionRun)
+
+        self.myStatus = QStatusBar()
+        # self.myStatus.showMessage("Status Bar Is Ready", 3000)
+        self.setStatusBar(self.myStatus)
 
         self.retranslateUi(MainWindow)
 
@@ -186,6 +154,10 @@ class Ui_MainWindow(object):
         self.actionPaste.setText(QCoreApplication.translate("MainWindow", u"Paste", None))
         self.actionCut.setText(QCoreApplication.translate("MainWindow", u"Cut", None))
         self.actionAbout.setText(QCoreApplication.translate("MainWindow", u"About", None))
+        self.actionRun.setText(QCoreApplication.translate("MainWindow", u"Run", None))
+#if QT_CONFIG(tooltip)
+        self.actionRun.setToolTip(QCoreApplication.translate("MainWindow", u"Run", None))
+#endif // QT_CONFIG(tooltip)
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("MainWindow", u"Edit", None))
         self.menuForm.setTitle(QCoreApplication.translate("MainWindow", u"Form", None))
@@ -193,13 +165,6 @@ class Ui_MainWindow(object):
         self.menuSettings.setTitle(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.menuWindow.setTitle(QCoreApplication.translate("MainWindow", u"Window", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pushButton_6.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pushButton_7.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pushButton_8.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi
 

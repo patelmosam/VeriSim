@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="images">
+    <file>images/arrow-curve-180-left.png</file>
+    <file>images/arrow-curve.png</file>
+    <file>images/document-copy.png</file>
+    <file>images/disk--pencil.png</file>
+    <file>images/scissors.png</file>
+    <file>images/question.png</file>
+    <file>images/printer.png</file>
+    <file>images/ui-tab--plus.png</file>
+    <file>disk.png</file>
+  </qresource>
+</RCC>
