@@ -8,6 +8,7 @@ class Element:
         # self.descriptor = descriptor
         self.bounding_box = QRect()
         self.schematic = None
+        self.oriantation = 0
 
     def pins(self):
         raise NotImplementedError
@@ -17,10 +18,11 @@ class Element:
 
 
 class Pin:
-    def __init__(self, pin, direction, position):
+    def __init__(self, pin, direction, position, _type):
         self.pin = pin
         self.direction = direction
         self.position = position
+        self.type = _type
 
 class GeneralElement(Element):
     # SIZE = QSize(100, 75)
@@ -33,13 +35,14 @@ class GeneralElement(Element):
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.input_pins = input_pins
         self.output_pins = output_pins
+        self.oriantation = 0
 
     def pins(self):
         bb = self.bounding_box
         for i in range(self.input_pins):
-            yield Pin(None, QVector2D(-1, 0), QPoint(0, (i+1)*(bb.height() / (self.input_pins + 1))))
+            yield Pin(None, QVector2D(-1, 0), QPoint(0, (i+1)*(bb.height() / (self.input_pins + 1))), 'input')
         for i in range(self.output_pins):
-            yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), (i+1)*(bb.height() / (self.output_pins + 1))))
+            yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), (i+1)*(bb.height() / (self.output_pins + 1))), 'output')
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))
@@ -62,11 +65,12 @@ class NotElement(Element):
     def __init__(self):
         # super().__init__(descriptor)
         self.bounding_box = QRect(QPoint(), self.SIZE)
+        self.oriantation = 0
 
     def pins(self):
         bb = self.bounding_box
-        yield Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 2))
-        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2))
+        yield Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 2), 'input')
+        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output')
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))
@@ -87,12 +91,13 @@ class AndElement(Element):
 
     def __init__(self):
         self.bounding_box = QRect(QPoint(), self.SIZE)
+        self.oriantation = 0
 
     def pins(self):
         bb = self.bounding_box
-        yield Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 3))
-        yield Pin(None, QVector2D(-1, 0), QPoint(0, 2 * bb.height() / 3))
-        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2))
+        yield Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 3), 'input')
+        yield Pin(None, QVector2D(-1, 0), QPoint(0, 2 * bb.height() / 3), 'input')
+        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output')
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))
@@ -115,12 +120,13 @@ class OrElement(Element):
 
     def __init__(self):
         self.bounding_box = QRect(QPoint(), self.SIZE)
+        self.oriantation = 0
 
     def pins(self):
         bb = self.bounding_box
-        yield Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, bb.height() / 3))
-        yield Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, 2 * bb.height() / 3))
-        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2))
+        yield Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, bb.height() / 3), 'input')
+        yield Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, 2 * bb.height() / 3), 'input')
+        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output')
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))

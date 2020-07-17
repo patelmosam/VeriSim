@@ -8,12 +8,10 @@ class VeriSimGUI(Ui_MainWindow, QtWidgets.QMainWindow):
         super(VeriSimGUI, self).__init__()
         self.setupUi(self)
         self.ed.elements.append(OrElement())
-        self.ed.elements.append(AndElement())
-        self.ed.elements.append(NotElement())
-        self.ed.elements.append(GeneralElement(4,4))
+        # self.ed.elements.append(AndElement())
         # self.ed.elements.append(NotElement())
-        # self.ed.wiring_mode = True
-        # self.ed.paintEvent()
+        self.ed.elements.append(GeneralElement(4,4))
+        self.ed.get_pins()
         # self.myStatus.showMessage("Status Bar Is Ready", 3000)
 
 if __name__=='__main__':
