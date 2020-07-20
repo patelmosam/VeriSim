@@ -1,5 +1,5 @@
 import os
-from utils import *
+from engine.utils import *
 
 def module(name, files, modules, port_dict, size_dict, io_dict, port_list):
     

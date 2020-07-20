@@ -2,6 +2,7 @@ from PySide2.QtWidgets import QWidget, QOpenGLWidget
 from PySide2.QtCore import QRect, QSize, Qt, QPoint, QMargins, QLine
 from PySide2.QtGui import QColor, QPen, QPainter, QMouseEvent, QPolygon, QPainterPath, QVector2D, QPainterPathStroker
 
+from GUI.elements import *
 
 def _closest_point(line, point):
     d = QVector2D(line.p2() - line.p1())
@@ -42,7 +43,8 @@ class SchematicEditor(QWidget):
         self.grab_offset = None
         
         self.start_element = None
-        self.end_element = None
+        self.pin_index = None
+        self.label_dict = {'module':[], 'io':[], 'wire':[]}
 
     def get_pins(self):
         for element in self.elements:
@@ -97,8 +99,8 @@ class SchematicEditor(QWidget):
             # painter.fillPath(stroke, fill_color)
             # painter.drawPath(path)
             for wire in self.wires:
-                for i in range(len(wire)-1):
-                    painter.drawLine(wire[i],wire[i+1])
+                for i in range(len(wire.points)-1):
+                    painter.drawLine(wire.points[i],wire.points[i+1])
 
     def _draw_pin(self, painter, point):
         fill_color = QColor(255, 255, 255)
@@ -157,53 +159,16 @@ class SchematicEditor(QWidget):
                 return element
         return None
 
-    # def _closest_guideline_point(self, point):
-    #     currd = None
-    #     closest = None
-    #     is_junction = False
-    #     for element in self.elements:
-    #         for pin in element.pins():
-    #             p = pin.position + element.bounding_box.topLeft()
-    #             d = QVector2D(p - point).lengthSquared()
-    #             if (currd is None or d < currd) and d < 2500:
-    #                 currd = d
-    #                 closest = p
-    #                 is_junction = True
-    #     for wire in self.wires:
-    #         for p in (wire.p1(), wire.p2()):
-    #             d = QVector2D(p - point).lengthSquared()
-    #             if (currd is None or d < currd) and d < 2500:
-    #                 currd = d
-    #                 closest = p
-    #                 is_junction = True
-    #     for line in self.guidelines:
-    #         p = _closest_point(line, point)
-    #         d = QVector2D(p - point).lengthSquared()
-    #         if not _is_point_on_line(line, p):
-    #             continue
-    #         if self._wire_start is not None:
-    #             delta = p - self._wire_start
-    #             if delta.x() != 0 and delta.y() != 0:
-    #                 continue
-    #         if (currd is None or ((not is_junction and d < currd) or (is_junction and abs(d - currd) > 100))) and d < 2500:
-    #             currd = d
-    #             closest = p
-    #     return closest
-
-    # def _closest_assist_point(self, point):
-    #     gp = self._closest_guideline_point(point)
-    #     return gp
-    
 
     def get_selected_pin(self, pos):
         for vals, element in zip(self.pins.values(), self.pins):
-            for pin in vals:
+            for pin,i in zip(vals,range(len(vals))):
                 if pin.x()-8 <= pos.x() and pin.y()-8 <= pos.y():
                     if pin.x()+8 >= pos.x() and pin.y()+8 >= pos.y():
-                        return pin, element
+                        return pin, element, i
         # print(_type)
         
-        return None, None
+        return None, None, None
 
     def check_wire_tip(self, pos):
         if self.wire_tip is not None:
@@ -214,11 +179,12 @@ class SchematicEditor(QWidget):
 
     def mousePressEvent(self, e):
         if self.wiring_mode:
-            selected_pin, pin_element = self.get_selected_pin(e.pos())
+            selected_pin, in_element, pin_index = self.get_selected_pin(e.pos())
             if not self._wire_start:
                 if selected_pin is not None:
                     self._wire_start = True
-                    self.start_element = pin_element
+                    self.start_element = in_element
+                    self.pin_index = pin_index
                     self._ghost_wire = [selected_pin]
                     selected_pin = None
         else:
@@ -255,6 +221,21 @@ class SchematicEditor(QWidget):
             if self.grabbed_element is not None:
                 self.grabbed_element.bounding_box.moveTopLeft(
                     e.pos() + self.grab_offset)
+                # self.wires
+                for wire in self.wires:
+                    # print(wire.points)
+                    if wire.connection.In_module == self.grabbed_element:
+                        pin = wire.connection.In_pin
+                        st_pnt = wire.points[-1]
+                        dy_pnt = self.pins[self.grabbed_element][pin]
+                        self.update_wire(dy_pnt, st_pnt, wire)
+
+                    if wire.connection.Out_module == self.grabbed_element:
+                        pin = wire.connection.Out_pin
+                        st_pnt = wire.points[0]
+                        dy_pnt = self.pins[self.grabbed_element][pin]
+                        self.update_wire(st_pnt, dy_pnt, wire)
+
                 self.moved = True
                 self.update()
             elif self.select_rect is not None:
@@ -270,16 +251,14 @@ class SchematicEditor(QWidget):
         if self.wiring_mode:
             if e.button() == Qt.LeftButton:
                 if self._ghost_wire is not None:
-                    wire_end, pin_element = self.get_selected_pin(e.pos())
+                    wire_end, out_element, pin_index = self.get_selected_pin(e.pos())
                     if wire_end is not None:
-                        # print("ghost ",self._ghost_wire)
-                        # wire_mid = QPoint(self._wire_start.x(), wire_end.y())
-                        self.wires.append(self._ghost_wire)
+                        if self.start_element != out_element:
+                            conn = connection(self.start_element, self.pin_index, out_element, pin_index)
+                            self.wires.append(WireElement(conn, self._ghost_wire))
                         self._ghost_wire = None
                         self._wire_start = False
                         wire_end = None
-                        # for i in self.wires:
-                            # print("wire ",len(i))
                     else:
                         if self._ghost_wire is not None:
                             self._ghost_wire.append(e.pos())
@@ -308,35 +287,6 @@ class SchematicEditor(QWidget):
                 self.select_rect = None
                 self.update()
 
-    # def _build_guidelines(self):
-    #     self.guidelines = list()
-    #     for element in self.elements:
-    #         for pin in element.pins():
-    #             p = pin.position + element.bounding_box.topLeft()
-    #             if pin.direction.y() == 0:
-    #                 if pin.direction.x() > 0:
-    #                     self.guidelines.append(
-    #                         QLine(p.x(), p.y(), self.rect().width(), p.y()))
-    #                 else:
-    #                     self.guidelines.append(
-    #                         QLine(p.x(), p.y(), 0, p.y()))
-    #                 self.guidelines.append(
-    #                     QLine(p.x(), 0, p.x(), self.rect().height()))
-    #             else:
-    #                 if pin.direction.y() > 0:
-    #                     self.guidelines.append(
-    #                         QLine(p.x(), p.y(), p.x(), self.rect().height()))
-    #                 else:
-    #                     self.guidelines.append(
-    #                         QLine(p.x(), p.y(), p.x(), 0))
-    #                 self.guidelines.append(
-    #                     QLine(0, p.y(), self.rect().width(), p.y()))
-    #     for wire in self.wires:
-    #         for p in (wire.p1(), wire.p2()):
-    #             self.guidelines.append(
-    #                 QLine(0, p.y(), self.rect().width(), p.y()))
-    #             self.guidelines.append(
-    #                 QLine(p.x(), 0, p.x(), self.rect().height()))
 
     def resizeEvent(self, e):
         super().resizeEvent(e)
@@ -373,3 +323,71 @@ class SchematicEditor(QWidget):
                 self.update()
         elif e.key() == Qt.Key_Backspace:
             del self._ghost_wire[-1]
+
+    def update_wire(self,dy_pnt, st_pnt, wire):
+
+
+        wire.points = []
+        wire.points.append(dy_pnt)
+        wire.points.append(QPoint(dy_pnt.x()+abs(st_pnt.x()-dy_pnt.x())/2,dy_pnt.y()))
+        wire.points.append(QPoint(dy_pnt.x()+abs(st_pnt.x()-dy_pnt.x())/2,st_pnt.y()))
+        wire.points.append(st_pnt)
+
+        # for i in range(len(wire.points)-1):
+        #     rect = self.make_line_rect([wire.points[i], wire.points[i+1]])
+            # is_intetsect, bb = self.is_interseted(rect, wire.connection.In_module, wire.connection.Out_module)
+            # print(is_intetsect)
+            # if is_intetsect:
+            #     x, y, h, w = bb.x(), bb.y(), bb.height(), bb.width()
+            #     p1, p2, p3, p4 = QPoint(x,y), QPoint(x+w,y), QPoint(x,y+h), QPoint(x+w,y+h)
+
+                # self._update_wire2(i, i+1, wire, p1, p2, p3, p4)
+                # self._update_wire2(i+1, i, wire, p1, p2, p3, p4)
+
+    def make_line_rect(self, line):
+        hight = abs(line[0].y() - line[1].y()) 
+        width = abs(line[0].x() - line[1].x()) 
+        return QRect(QPoint(line[0]),QSize(width, hight))
+
+    def is_interseted(self, rect, in_module, out_module):
+        res = False
+        bb = None
+        for element in self.elements:
+            if element != in_module and element != out_module:
+                if element.bounding_box.intersects(rect):
+                    res = True
+                    bb = element.bounding_box
+                    break
+        return res, bb
+
+    def _update_wire2(self, i, j, wire, p1, p2, p3, p4):
+        if wire.points[i].x()-wire.points[j].x() == 0:
+            c = (p3.x() + p4.x())/2 
+            if p1.x() <= wire.points[i].x() <= c:
+                np1 = QPoint(wire.points[i].x(), p1.y()-10)
+                np2 = QPoint(p1.x()-10, p1.y()-10)
+                np3 = QPoint(p1.x()-10, p3.y()+10)
+                np4 = QPoint(wire.points[i].x(), p3.y()+10)
+            else:
+                np1 = QPoint(wire.points[i].x(), p2.y()-10)
+                np2 = QPoint(p2.x()+10, p2.y()-10)
+                np3 = QPoint(p2.x()+10, p4.y()+10)
+                np4 = QPoint(wire.points[i].x(), p4.y()+10)
+
+            for np in [np4,np3,np2,np1]:
+                wire.points.insert(j,np)
+        else:
+            c = (p1.y() + p3.y())/2 
+            if p1.y() <= wire.points[i].y() <= c:
+                np1 = QPoint(p1.x()-10, wire.points[i].y())
+                np2 = QPoint(p1.x()-10, p1.y()-10)
+                np3 = QPoint(p2.x()+10, p1.y()-10)
+                np4 = QPoint(p2.x()+10, wire.points[i].y())
+            else:
+                np1 = QPoint(p3.x()-10, wire.points[i].y())
+                np2 = QPoint(p3.x()-10, p3.y()+10)
+                np3 = QPoint(p4.x()+10, p3.y()+10)
+                np4 = QPoint(p4.x()+10, wire.points[i].y())
+
+            for np in [np4,np3,np2,np1]:
+                wire.points.insert(j,np)

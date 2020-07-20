@@ -14,8 +14,12 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
-from schematicWindow import SchematicEditor
-import icons_rc
+from GUI.schematicWindow import SchematicEditor
+import GUI.icons_rc
+from GUI.ui_ComponentBox import Ui_Dialog
+import sys
+from GUI.backend import *
+from engine.vengine import *
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -145,12 +149,30 @@ class Ui_MainWindow(object):
         icon2.addFile(u":/images/images/question.png", QSize(), QIcon.Normal, QIcon.Off)
         
         self.toolBar.addAction(self.actionWire)
-    
+
+        self.actionDialog = QAction(MainWindow)
+        self.actionDialog.setObjectName(u"components")
+        icon3 = QIcon()
+        icon3.addFile(u":/images/images/question.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionDialog.setIcon(icon3)
+
+        self.toolBar.addAction(self.actionDialog)
+
+        self.actionBuild = QAction(MainWindow)
+        self.actionBuild.setObjectName(u"Build")
+        icon4 = QIcon()
+        icon4.addFile(u":/images/images/ui-tab--plus.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionBuild.setIcon(icon4)
+
+        self.toolBar.addAction(self.actionBuild)
+
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
 
         self.actionWire.triggered.connect(lambda : self.wire_mode(icon1, icon2))
+        self.actionDialog.triggered.connect(lambda : self.show_components())
+        self.actionBuild.triggered.connect(lambda : self.build())
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -187,3 +209,15 @@ class Ui_MainWindow(object):
         else:
             self.ed.wiring_mode = True
             self.actionWire.setIcon(icon2)
+
+    def show_components(self):
+        dlg = Ui_Dialog()
+        dlg.setWindowTitle("components")
+        dlg.exec_()
+
+    def build(self):
+        elements, io_elements = get_elements(self.ed.elements)
+        wires = get_wires(self.ed.wires)
+        layout = Layout(elements, wires, [], io_elements)
+        e = engine(layout,None)
+        e.create_module('test.v')
