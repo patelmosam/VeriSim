@@ -8,6 +8,15 @@
     <file>images/question.png</file>
     <file>images/printer.png</file>
     <file>images/ui-tab--plus.png</file>
-    <file>disk.png</file>
+    <file>images/disk.png</file>
+    <file>images/edit-alignment.png</file>
+    <file>images/edit-alignment-center.png</file>
+    <file>images/edit-alignment-justify.png</file>
+    <file>images/edit-alignment-right.png</file>
+    <file>images/edit-color.png</file>
+    <file>images/edit-italic.png</file>
+    <file>images/edit-list.png</file>
+    <file>images/edit-bold.png</file>
+
   </qresource>
 </RCC>

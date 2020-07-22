@@ -41,3 +41,17 @@ def get_wires(wire_list):
                 raise IndexError
         wires.append(Wire(From, To))
     return wires
+
+def get_module(label, no):
+    if label=='And':
+        return AndElement('m'+str(no))
+    elif label=='Or':
+        return OrElement('m'+str(no))
+    elif label=='Not':
+        return NotElement('m'+str(no))
+    elif label=='Input':
+        return InputElement('m'+str(no), 1)
+    elif label=='Monitor':
+        return MonitorElement('m'+str(no), 1)
+    else:
+        return None

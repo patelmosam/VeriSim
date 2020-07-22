@@ -16,7 +16,7 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
 from PySide2.QtWidgets import *
 from GUI.schematicWindow import SchematicEditor
 import GUI.icons_rc
-from GUI.ui_ComponentBox import Ui_Dialog
+from GUI.ui_dialog import Ui_Dialog
 import sys
 from GUI.backend import *
 from engine.vengine import *
@@ -29,7 +29,7 @@ class Ui_MainWindow(object):
         self.actionNew = QAction(MainWindow)
         self.actionNew.setObjectName(u"actionNew")
         icon = QIcon()
-        icon.addFile(u":/images/disk.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/images/images/disk.png", QSize(), QIcon.Normal, QIcon.Off)
         self.actionNew.setIcon(icon)
         self.actionOpen = QAction(MainWindow)
         self.actionOpen.setObjectName(u"actionOpen")
@@ -153,7 +153,7 @@ class Ui_MainWindow(object):
         self.actionDialog = QAction(MainWindow)
         self.actionDialog.setObjectName(u"components")
         icon3 = QIcon()
-        icon3.addFile(u":/images/images/question.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon3.addFile(u":/images/images/disk.png", QSize(), QIcon.Normal, QIcon.Off)
         self.actionDialog.setIcon(icon3)
 
         self.toolBar.addAction(self.actionDialog)
@@ -171,7 +171,7 @@ class Ui_MainWindow(object):
         QMetaObject.connectSlotsByName(MainWindow)
 
         self.actionWire.triggered.connect(lambda : self.wire_mode(icon1, icon2))
-        self.actionDialog.triggered.connect(lambda : self.show_components())
+        self.actionDialog.triggered.connect(lambda : self.startDialog())
         self.actionBuild.triggered.connect(lambda : self.build())
     # setupUi
 
@@ -210,10 +210,13 @@ class Ui_MainWindow(object):
             self.ed.wiring_mode = True
             self.actionWire.setIcon(icon2)
 
-    def show_components(self):
-        dlg = Ui_Dialog()
-        dlg.setWindowTitle("components")
+    def startDialog(self):
+        dlg = fileDialog(self)
         dlg.exec_()
+        element = get_module(dlg.selection,len(self.ed.elements)+1)
+        if element is not None:
+            self.ed.elements.append(element)
+        
 
     def build(self):
         elements, io_elements = get_elements(self.ed.elements)
@@ -221,3 +224,14 @@ class Ui_MainWindow(object):
         layout = Layout(elements, wires, [], io_elements)
         e = engine(layout,None)
         e.create_module('test.v')
+
+    def getDialogInfo(self, dialogue):
+        print("ddd")
+        
+
+class fileDialog(QDialog, Ui_Dialog):
+    def __init__(self,parent):
+        super().__init__(parent)
+        self.setupUi(self)
+        self.setWindowTitle("components")
+        # self.pushButton.clicked.connect(self.accept)
