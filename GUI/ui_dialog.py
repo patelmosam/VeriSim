@@ -83,7 +83,7 @@ class Ui_Dialog(object):
 
         self.gridLayout.addWidget(self.listWidget_2, 0, 1, 3, 1)
 
-        self.listWidget.itemDoubleClicked.connect(self._handleDoubleClick)
+        self.listWidget.itemClicked.connect(self._handleClick)
 
         self.listWidget_2.itemClicked.connect(self._get_selection)
         self.retranslateUi(Dialog)
@@ -108,7 +108,7 @@ class Ui_Dialog(object):
 
     # retranslateUi
 
-    def _handleDoubleClick(self, item):
+    def _handleClick(self, item):
         if item.text() == 'Gates':
             self.clear_items()
             self.listWidget_2.addItems(['And','Or','Not'])
@@ -119,7 +119,7 @@ class Ui_Dialog(object):
             self.clear_items()
             self.listWidget_2.addItems(['Monitor'])
 
-        item.setSelected(False)
+        # item.setSelected(False)
 
     def clear_items(self):
         item = 1

@@ -1,5 +1,5 @@
 from GUI.elements import *
-from engine.vcomponent import Module, Wire
+from engine.component import Module, Wire, Bus
 from GUI.schematicWindow import SchematicEditor as se
 
 def get_label(name, label_dict):
@@ -41,6 +41,33 @@ def get_wires(wire_list):
                 raise IndexError
         wires.append(Wire(From, To))
     return wires
+
+def get_buses(bus_list):
+    buses = []
+    for b in bus_list:
+        in_module = b.connection.In_module.module
+        in_pin = b.connection.In_pin
+        out_module = b.connection.Out_module.module
+        out_pin = b.connection.Out_pin
+        if isinstance(in_module,(InputModule)):
+            From = in_module.ports
+        else:
+            try:
+                offset = len(in_module.inputs)
+                From = in_module.outputs[in_pin-offset]
+            except:
+                print(in_pin, in_module.name)
+                raise IndexError
+        if isinstance(out_module,(Monitor)):
+            To = out_module.ports
+        else:
+            try:
+                To = out_module.inputs[out_pin]
+            except:
+                print(out_pin, out_module.name)
+                raise IndexError
+        buses.append(Bus(From, To))
+    return buses
 
 def get_module(label, no):
     if label=='And':

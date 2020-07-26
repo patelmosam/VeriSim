@@ -1,8 +1,8 @@
 # from PySide2.QtWidgets import QWidget, QOpenGLWidget
 from PySide2.QtCore import QRect, QSize, Qt, QPoint, QMargins, QLine, QRectF
 from PySide2.QtGui import QColor, QPen, QPainter, QMouseEvent, QPolygon, QPainterPath, QVector2D, QPainterPathStroker
-from engine.vcomponent import Module
-from engine.vports import *
+from engine.component import Module
+from engine.ports import *
 
 class Element:
     def __init__(self, label):
@@ -24,11 +24,12 @@ class Element:
 
 
 class Pin:
-    def __init__(self, pin, direction, position, _type):
+    def __init__(self, pin, direction, position, _type, size=1):
         self.pin = pin
         self.direction = direction
         self.position = position
         self.type = _type
+        self.size = size
 
 class connection:
     def __init__(self, in_module, in_pin, out_module, out_pin):
@@ -51,16 +52,16 @@ class GeneralElement(Element):
         self.SIZE = QSize(100, H)
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        
+        self.pins = []
+        self.get_pins()
 
-    def pins(self):
+    def get_pins(self):
         bb = self.bounding_box
-        ipin, opin = [], []
-        for i in range(self.input_pins):
-            ipin.append(Pin(None, QVector2D(-1, 0), QPoint(0, (i+1)*(bb.height() / (self.input_pins + 1))), 'input'))
-        for i in range(self.output_pins):
-            opin.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), (i+1)*(bb.height() / (self.output_pins + 1))), 'output'))
-        return ipin, opin
+        for i,s in zip(range(self.input_pins),self.module.inputs):
+            self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, (i+1)*(bb.height() / (self.input_pins + 1))), 'input', len(s)))
+        for i,s in zip(range(self.output_pins),self.module.outputs):
+            self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), (i+1)*(bb.height() / (self.output_pins + 1))), 'output', len(s)))
+ 
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))
@@ -87,11 +88,13 @@ class NotElement(Element):
         self.file = "components/gates/not.v"
         self.label = label
         self.module = Module(self.file, self.label)
+        self.pins = []
+        self.get_pins()
 
-    def pins(self):
+    def get_pins(self):
         bb = self.bounding_box
-        yield Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 2), 'input')
-        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output')
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 2), 'input'))
+        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output'))
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))
@@ -116,12 +119,14 @@ class AndElement(Element):
         self.file = "components/gates/and.v"
         self.label = label
         self.module = Module(self.file, self.label)
+        self.pins = []
+        self.get_pins()
 
-    def pins(self):
+    def get_pins(self):
         bb = self.bounding_box
-        yield Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 3), 'input')
-        yield Pin(None, QVector2D(-1, 0), QPoint(0, 2 * bb.height() / 3), 'input')
-        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output')
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 3), 'input'))
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, 2 * bb.height() / 3), 'input'))
+        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output'))
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))
@@ -137,7 +142,7 @@ class AndElement(Element):
         path.closeSubpath()
         painter.drawPath(path)
 
-        painter.drawEllipse(QPoint(s.width(), s.height() / 2), 3, 3)
+        # painter.drawEllipse(QPoint(s.width(), s.height() / 2), 3, 3)
 
 class OrElement(Element):
     SIZE = QSize(100, 75)
@@ -148,12 +153,14 @@ class OrElement(Element):
         self.file = "components/gates/or.v"
         self.label = label
         self.module = Module(self.file, self.label)
+        self.pins = []
+        self.get_pins()
 
-    def pins(self):
+    def get_pins(self):
         bb = self.bounding_box
-        yield Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, bb.height() / 3), 'input')
-        yield Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, 2 * bb.height() / 3), 'input')
-        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output')
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, bb.height() / 3), 'input'))
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, 2 * bb.height() / 3), 'input'))
+        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output'))
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))
@@ -190,11 +197,12 @@ class InputElement(Element):
         # self.SIZE = QSize(100, H)
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        
+        self.pins = []
+        self.get_pins()
 
-    def pins(self):
+    def get_pins(self):
         bb = self.bounding_box
-        yield Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output')
+        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output', self.size))
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))
@@ -221,11 +229,12 @@ class MonitorElement(Element):
         # self.SIZE = QSize(100, H)
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        
+        self.pins = []
+        self.get_pins()        
 
-    def pins(self):
+    def get_pins(self):
         bb = self.bounding_box
-        yield Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 2), 'input')
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 2), 'input', self.size))
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.black, 2))
@@ -246,3 +255,9 @@ class WireElement:
         self.connection = connection
         self.points = points
 
+class BusElement:
+    def __init__(self, connection, points, size):
+        self.label = None
+        self.connection = connection
+        self.points = points
+        self.size = size

@@ -19,7 +19,7 @@ import GUI.icons_rc
 from GUI.ui_dialog import Ui_Dialog
 import sys
 from GUI.backend import *
-from engine.vengine import *
+from engine.engine import *
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -221,9 +221,11 @@ class Ui_MainWindow(object):
     def build(self):
         elements, io_elements = get_elements(self.ed.elements)
         wires = get_wires(self.ed.wires)
-        layout = Layout(elements, wires, [], io_elements)
+        buses = get_buses(self.ed.buses)
+        layout = Layout(elements, wires, buses, io_elements)
         e = engine(layout,None)
         e.create_module('test.v')
+        self.myStatus.showMessage("Build sucessful", 3000)
 
     def getDialogInfo(self, dialogue):
         print("ddd")
