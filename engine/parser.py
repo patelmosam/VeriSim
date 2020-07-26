@@ -1,4 +1,4 @@
-from engine.vports import Port
+from engine.ports import Port
 
 def verilog_parser(file_path, label):
     inputs = []

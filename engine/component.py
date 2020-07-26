@@ -1,6 +1,6 @@
 import subprocess
-from engine.vparser import verilog_parser
-from engine.vports import *
+from engine.parser import verilog_parser
+from engine.ports import *
 from engine.utils import combine_ports
 
 class Module:

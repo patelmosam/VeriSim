@@ -1,9 +1,9 @@
 
 import os
 import subprocess
-from engine.vtemplate import module, testbanch
-from engine.vcomponent import *
-from engine.vports import *
+from engine.template import module, testbanch
+from engine.component import *
+from engine.ports import *
 from engine.utils import *
 
 class engine:
