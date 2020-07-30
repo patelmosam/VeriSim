@@ -3,6 +3,7 @@ from PySide2.QtCore import QRect, QSize, Qt, QPoint, QMargins, QLine
 from PySide2.QtGui import QColor, QPen, QPainter, QMouseEvent, QPolygon, QPainterPath, QVector2D, QPainterPathStroker
 
 from GUI.elements import *
+from GUI.schematicUtils import *
 
 def _closest_point(line, point):
     d = QVector2D(line.p2() - line.p1())
@@ -48,6 +49,7 @@ class SchematicEditor(QWidget):
         self.start_element = None
         self.pin_index = None
         self.label_dict = {'module':[], 'io':[], 'wire':[]}
+        self.get_pins()
 
     def get_pins(self):
         for element in self.elements:
@@ -93,12 +95,16 @@ class SchematicEditor(QWidget):
                 for i in range(len(wire.points)-1):
                     painter.drawLine(wire.points[i],wire.points[i+1])
 
-    def _draw_pin(self, painter, point):
+    def _draw_pin(self, painter, point, pin):
         fill_color = QColor(255, 255, 255)
-        outline_color = QColor(0, 0, 0)
+        outline_color = QColor(0, 0, 255)
         painter.setBrush(fill_color)
         painter.setPen(QPen(outline_color, 2))
-        painter.drawEllipse(point.x() - 4, point.y() - 4, 8, 8)
+        # # painter.drawEllipse(point.x() - 4, point.y() - 4, 8, 8)
+        # if pin.type == 'input':
+        #     painter.drawLine(point.x(), point.y(), point.x()+10, point.y())
+        # elif pin.type == 'output':
+        #     painter.drawLine(point.x()-10, point.y(), point.x(), point.y())
 
     def paintEvent(self, *args):
         painter = QPainter(self)
@@ -119,7 +125,7 @@ class SchematicEditor(QWidget):
         for element in self.elements:
             for pin in element.pins:
                 p = pin.position + element.bounding_box.topLeft()
-                self._draw_pin(painter, p)
+                self._draw_pin(painter, p, pin)
 
         painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
         painter.setBrush(Qt.transparent)
@@ -217,7 +223,7 @@ class SchematicEditor(QWidget):
             if self.grabbed_element is not None:
                 self.grabbed_element.bounding_box.moveTopLeft(
                     e.pos() + self.grab_offset)
-                
+                # print(e.pos() + self.grab_offset,"qqq")
                 self.continuous_update(self.wires)
                 self.continuous_update(self.buses)
 
@@ -322,78 +328,12 @@ class SchematicEditor(QWidget):
                 pin = wire.connection.In_pin
                 st_pnt = wire.points[-1]
                 dy_pnt = self.pins[self.grabbed_element][pin]
-                self.update_wire(dy_pnt, st_pnt, wire)
+                update_wire(dy_pnt, st_pnt, wire)
 
             if wire.connection.Out_module == self.grabbed_element:
                 pin = wire.connection.Out_pin
                 st_pnt = wire.points[0]
                 dy_pnt = self.pins[self.grabbed_element][pin]
-                self.update_wire(st_pnt, dy_pnt, wire)
+                update_wire(st_pnt, dy_pnt, wire)
 
-    def update_wire(self,dy_pnt, st_pnt, wire):
-
-
-        wire.points = []
-        wire.points.append(dy_pnt)
-        wire.points.append(QPoint(dy_pnt.x()+abs(st_pnt.x()-dy_pnt.x())/2,dy_pnt.y()))
-        wire.points.append(QPoint(dy_pnt.x()+abs(st_pnt.x()-dy_pnt.x())/2,st_pnt.y()))
-        wire.points.append(st_pnt)
-
-        # for i in range(len(wire.points)-1):
-        #     rect = self.make_line_rect([wire.points[i], wire.points[i+1]])
-            # is_intetsect, bb = self.is_interseted(rect, wire.connection.In_module, wire.connection.Out_module)
-            # print(is_intetsect)
-            # if is_intetsect:
-            #     x, y, h, w = bb.x(), bb.y(), bb.height(), bb.width()
-            #     p1, p2, p3, p4 = QPoint(x,y), QPoint(x+w,y), QPoint(x,y+h), QPoint(x+w,y+h)
-
-                # self._update_wire2(i, i+1, wire, p1, p2, p3, p4)
-                # self._update_wire2(i+1, i, wire, p1, p2, p3, p4)
-
-    def make_line_rect(self, line):
-        hight = abs(line[0].y() - line[1].y()) 
-        width = abs(line[0].x() - line[1].x()) 
-        return QRect(QPoint(line[0]),QSize(width, hight))
-
-    def is_interseted(self, rect, in_module, out_module):
-        res = False
-        bb = None
-        for element in self.elements:
-            if element != in_module and element != out_module:
-                if element.bounding_box.intersects(rect):
-                    res = True
-                    bb = element.bounding_box
-                    break
-        return res, bb
-
-    def _update_wire2(self, i, j, wire, p1, p2, p3, p4):
-        if wire.points[i].x()-wire.points[j].x() == 0:
-            c = (p3.x() + p4.x())/2 
-            if p1.x() <= wire.points[i].x() <= c:
-                np1 = QPoint(wire.points[i].x(), p1.y()-10)
-                np2 = QPoint(p1.x()-10, p1.y()-10)
-                np3 = QPoint(p1.x()-10, p3.y()+10)
-                np4 = QPoint(wire.points[i].x(), p3.y()+10)
-            else:
-                np1 = QPoint(wire.points[i].x(), p2.y()-10)
-                np2 = QPoint(p2.x()+10, p2.y()-10)
-                np3 = QPoint(p2.x()+10, p4.y()+10)
-                np4 = QPoint(wire.points[i].x(), p4.y()+10)
-
-            for np in [np4,np3,np2,np1]:
-                wire.points.insert(j,np)
-        else:
-            c = (p1.y() + p3.y())/2 
-            if p1.y() <= wire.points[i].y() <= c:
-                np1 = QPoint(p1.x()-10, wire.points[i].y())
-                np2 = QPoint(p1.x()-10, p1.y()-10)
-                np3 = QPoint(p2.x()+10, p1.y()-10)
-                np4 = QPoint(p2.x()+10, wire.points[i].y())
-            else:
-                np1 = QPoint(p3.x()-10, wire.points[i].y())
-                np2 = QPoint(p3.x()-10, p3.y()+10)
-                np3 = QPoint(p4.x()+10, p3.y()+10)
-                np4 = QPoint(p4.x()+10, wire.points[i].y())
-
-            for np in [np4,np3,np2,np1]:
-                wire.points.insert(j,np)
+    
