@@ -13,6 +13,7 @@ class Element:
         self.file = None
         self.label = label
         self.module = Module(self.file, self.label)
+        self.pins = []
 
     def pins(self):
         raise NotImplementedError
@@ -20,7 +21,13 @@ class Element:
     def paint(self, painter):
         raise NotImplementedError
 
-    # def get_label()
+    def draw_pins(self, painter):
+        for pin in self.pins:
+            point = pin.position
+            if pin.type == 'input':
+                painter.drawLine(point.x(), point.y(), point.x()+10, point.y())
+            elif pin.type == 'output':
+                painter.drawLine(point.x()-10, point.y(), point.x(), point.y())
 
 
 class Pin:
@@ -58,13 +65,13 @@ class GeneralElement(Element):
     def get_pins(self):
         bb = self.bounding_box
         for i,s in zip(range(self.input_pins),self.module.inputs):
-            self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, (i+1)*(bb.height() / (self.input_pins + 1))), 'input', len(s)))
+            self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, (i+1)*(bb.height() / (self.input_pins + 1))), 'input', len(s)))
         for i,s in zip(range(self.output_pins),self.module.outputs):
-            self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), (i+1)*(bb.height() / (self.output_pins + 1))), 'output', len(s)))
+            self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, (i+1)*(bb.height() / (self.output_pins + 1))), 'output', len(s)))
  
 
     def paint(self, painter):
-        painter.setPen(QPen(Qt.black, 2))
+        painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
 
         path = QPainterPath()
@@ -75,8 +82,9 @@ class GeneralElement(Element):
         path.lineTo(QPoint(0, s.height()))
         path.closeSubpath()
         painter.drawPath(path)
-
+        painter.drawText(QPoint(0,s.height()+20), self.module.name)
         # painter.drawEllipse(QPoint(s.width() - 2, s.height() / 2), 3, 3)
+        self.draw_pins(painter)
 
 class NotElement(Element):
     SIZE = QSize(100, 75)
@@ -93,11 +101,11 @@ class NotElement(Element):
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 2), 'input'))
-        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output'))
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 2), 'input'))
+        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
 
     def paint(self, painter):
-        painter.setPen(QPen(Qt.black, 2))
+        painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
 
         path = QPainterPath()
@@ -107,8 +115,13 @@ class NotElement(Element):
         path.lineTo(QPoint(0, s.height()))
         path.closeSubpath()
         painter.drawPath(path)
-
+        painter.drawText(QPoint(0,s.height()+20), self.module.name)
         painter.drawEllipse(QPoint(s.width() - 2, s.height() / 2), 3, 3)
+        self.draw_pins(painter)
+
+    # def draw_pins(self, painter):
+    #     for pin in self.pins:
+    #         painter.drawLine(pin.position.x(), pin.position.y(), pin.position.x()+10, pin.position.y())
 
 class AndElement(Element):
     SIZE = QSize(100, 75)
@@ -124,12 +137,12 @@ class AndElement(Element):
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 3), 'input'))
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, 2 * bb.height() / 3), 'input'))
-        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output'))
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 3), 'input'))
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, 2 * bb.height() / 3), 'input'))
+        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
 
     def paint(self, painter):
-        painter.setPen(QPen(Qt.black, 2))
+        painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
 
         path = QPainterPath()
@@ -141,8 +154,9 @@ class AndElement(Element):
         path.lineTo(QPoint(0, s.height()))
         path.closeSubpath()
         painter.drawPath(path)
-
-        # painter.drawEllipse(QPoint(s.width(), s.height() / 2), 3, 3)
+        self.draw_pins(painter)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name)
+      
 
 class OrElement(Element):
     SIZE = QSize(100, 75)
@@ -158,12 +172,12 @@ class OrElement(Element):
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, bb.height() / 3), 'input'))
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(bb.width()/8, 2 * bb.height() / 3), 'input'))
-        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output'))
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10+bb.width()/8, bb.height() / 3), 'input'))
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10+bb.width()/8, 2 * bb.height() / 3), 'input'))
+        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
 
     def paint(self, painter):
-        painter.setPen(QPen(Qt.black, 2))
+        painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
 
         path = QPainterPath()
@@ -182,19 +196,16 @@ class OrElement(Element):
         
         path.closeSubpath()
         painter.drawPath(path)
-
-        painter.drawEllipse(QPoint(s.width() - 2, s.height() / 2), 3, 3)
+        self.draw_pins(painter)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name)
 
 class InputElement(Element):
-    SIZE = QSize(100, 75)
+    SIZE = QSize(50, 50)
 
     def __init__(self, label, size):
         self.label = label
         self.size = size
         self.module = InputModule(self.label, self.size)
-        self.min_dist = 25
-        # H = (self.size + 1)*(self.min_dist)
-        # self.SIZE = QSize(100, H)
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
         self.pins = []
@@ -202,31 +213,25 @@ class InputElement(Element):
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width(), bb.height() / 2), 'output', self.size))
+        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output', self.size))
 
     def paint(self, painter):
-        painter.setPen(QPen(Qt.black, 2))
+        painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
 
-        path = QPainterPath()
         s = self.SIZE
-        path.moveTo(QPoint())
-        path.lineTo(QPoint(s.width() - 5, 0))
-        path.lineTo(QPoint(s.width() - 5, s.height()))
-        path.lineTo(QPoint(0, s.height()))
-        path.closeSubpath()
-        painter.drawPath(path)
+        painter.drawEllipse(QRect(QPoint(), self.SIZE))
+        self.draw_pins(painter)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name)
 
 class MonitorElement(Element):
-    SIZE = QSize(100, 75)
+    SIZE = QSize(50, 50)
 
     def __init__(self, label, size):
         self.label = label
         self.size = size
         self.module = Monitor(self.label, self.size)
         self.min_dist = 25
-        # H = (self.size + 1)*(self.min_dist)
-        # self.SIZE = QSize(100, H)
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
         self.pins = []
@@ -234,20 +239,16 @@ class MonitorElement(Element):
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(0, bb.height() / 2), 'input', self.size))
+        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 2), 'input', self.size))
 
     def paint(self, painter):
-        painter.setPen(QPen(Qt.black, 2))
+        painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
 
-        path = QPainterPath()
         s = self.SIZE
-        path.moveTo(QPoint())
-        path.lineTo(QPoint(s.width() - 5, 0))
-        path.lineTo(QPoint(s.width() - 5, s.height()))
-        path.lineTo(QPoint(0, s.height()))
-        path.closeSubpath()
-        painter.drawPath(path)
+        painter.drawEllipse(QRect(QPoint(), self.SIZE))
+        self.draw_pins(painter)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name)
 
 class WireElement:
     def __init__(self, connection, points):
