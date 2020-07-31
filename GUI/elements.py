@@ -1,6 +1,6 @@
 # from PySide2.QtWidgets import QWidget, QOpenGLWidget
 from PySide2.QtCore import QRect, QSize, Qt, QPoint, QMargins, QLine, QRectF
-from PySide2.QtGui import QColor, QPen, QPainter, QMouseEvent, QPolygon, QPainterPath, QVector2D, QPainterPathStroker
+from PySide2.QtGui import QColor, QPen, QPainter, QMouseEvent, QPolygon, QPainterPath, QVector2D, QPainterPathStroker, QFont
 from engine.component import Module
 from engine.ports import *
 
@@ -87,26 +87,29 @@ class GeneralElement(Element):
         self.draw_pins(painter)
 
 class NotElement(Element):
-    SIZE = QSize(100, 75)
+    SCALE = 1
+    SIZE = QSize(50, 0.75*50)
 
     def __init__(self, label):
-        # super().__init__(descriptor)
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
         self.file = "components/gates/not.v"
         self.label = label
         self.module = Module(self.file, self.label)
-        self.pins = []
-        self.get_pins()
+        self.pins = self.get_pins()
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 2), 'input'))
-        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
+        pins = []
+        pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 2), 'input'))
+        pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
+        return pins
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
+        font = QFont()
+        font.setPointSize(self.SCALE + 10)
 
         path = QPainterPath()
         s = self.SIZE
@@ -115,16 +118,23 @@ class NotElement(Element):
         path.lineTo(QPoint(0, s.height()))
         path.closeSubpath()
         painter.drawPath(path)
+        painter.setFont(font)
         painter.drawText(QPoint(0,s.height()+20), self.module.name)
         painter.drawEllipse(QPoint(s.width() - 2, s.height() / 2), 3, 3)
         self.draw_pins(painter)
 
-    # def draw_pins(self, painter):
-    #     for pin in self.pins:
-    #         painter.drawLine(pin.position.x(), pin.position.y(), pin.position.x()+10, pin.position.y())
+    def resize(self, plus_or_minus):
+        if not plus_or_minus:
+            self.SCALE += 0.5
+        else:
+            self.SCALE -= 0.5
+        self.SIZE = QSize(self.SCALE*50, self.SCALE*0.75*50)
+        self.bounding_box = QRect(self.bounding_box.topLeft(), self.SIZE)
+        self.pins = self.get_pins()
 
 class AndElement(Element):
-    SIZE = QSize(100, 75)
+    SCALE = 1
+    SIZE = QSize(50, 0.75*50)
 
     def __init__(self, label):
         self.bounding_box = QRect(QPoint(), self.SIZE)
@@ -132,18 +142,22 @@ class AndElement(Element):
         self.file = "components/gates/and.v"
         self.label = label
         self.module = Module(self.file, self.label)
-        self.pins = []
-        self.get_pins()
+        self.pins = self.get_pins()
+        
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 3), 'input'))
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, 2 * bb.height() / 3), 'input'))
-        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
+        pins = []
+        pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 3), 'input'))
+        pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, 2 * bb.height() / 3), 'input'))
+        pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
+        return pins
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
+        font = QFont()
+        font.setPointSize(self.SCALE + 10)
 
         path = QPainterPath()
         s = self.SIZE
@@ -155,11 +169,22 @@ class AndElement(Element):
         path.closeSubpath()
         painter.drawPath(path)
         self.draw_pins(painter)
+        painter.setFont(font)
         painter.drawText(QPoint(0,s.height()+20), self.module.name)
+
+    def resize(self, plus_or_minus):
+        if not plus_or_minus:
+            self.SCALE += 0.5
+        else:
+            self.SCALE -= 0.5
+        self.SIZE = QSize(self.SCALE*50, self.SCALE*0.75*50)
+        self.bounding_box = QRect(self.bounding_box.topLeft(), self.SIZE)
+        self.pins = self.get_pins()
       
 
 class OrElement(Element):
-    SIZE = QSize(100, 75)
+    SCALE = 1
+    SIZE = QSize(50, 0.75*50)
 
     def __init__(self, label):
         self.bounding_box = QRect(QPoint(), self.SIZE)
@@ -167,18 +192,21 @@ class OrElement(Element):
         self.file = "components/gates/or.v"
         self.label = label
         self.module = Module(self.file, self.label)
-        self.pins = []
-        self.get_pins()
+        self.pins = self.get_pins()
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10+bb.width()/8, bb.height() / 3), 'input'))
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10+bb.width()/8, 2 * bb.height() / 3), 'input'))
-        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
+        pins = []
+        pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10+bb.width()/8, bb.height() / 3), 'input'))
+        pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10+bb.width()/8, 2 * bb.height() / 3), 'input'))
+        pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
+        return pins
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
+        font = QFont()
+        font.setPointSize(self.SCALE + 10)
 
         path = QPainterPath()
         s = self.SIZE
@@ -186,20 +214,27 @@ class OrElement(Element):
         r1 = QSize(2*s.width()+(s.width()/7), 2*s.height())
 
         path.moveTo(QPoint())
-        # path.lineTo(QPoint(s.width() / 2, 0))
         path.arcTo(QRectF(QPoint(-s.width(),0), r1), 90.0, -60.0)
         path.arcTo(QRectF(QPoint(-s.width(),-s.height()), r1), -30.0, -60.0)
-        
-        # path.lineTo(QPoint(s.width() / 2, s.height()))
-        # path.lineTo(QPoint(0, s.height()))
         path.arcTo(QRectF(QPoint(-s.width()*2,-s.height()/2), r1), -30.0, 60.0)
         
         path.closeSubpath()
         painter.drawPath(path)
         self.draw_pins(painter)
+        painter.setFont(font)
         painter.drawText(QPoint(0,s.height()+20), self.module.name)
 
+    def resize(self, plus_or_minus):
+        if not plus_or_minus:
+            self.SCALE += 0.5
+        else:
+            self.SCALE -= 0.5
+        self.SIZE = QSize(self.SCALE*50, self.SCALE*0.75*50)
+        self.bounding_box = QRect(self.bounding_box.topLeft(), self.SIZE)
+        self.pins = self.get_pins()
+
 class InputElement(Element):
+    SCALE = 1
     SIZE = QSize(50, 50)
 
     def __init__(self, label, size):
@@ -208,23 +243,37 @@ class InputElement(Element):
         self.module = InputModule(self.label, self.size)
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        self.pins = []
-        self.get_pins()
+        self.pins = self.get_pins()
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output', self.size))
+        pins = []
+        pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output', self.size))
+        return pins
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
+        font = QFont()
+        font.setPointSize(self.SCALE + 10)
 
         s = self.SIZE
         painter.drawEllipse(QRect(QPoint(), self.SIZE))
         self.draw_pins(painter)
+        painter.setFont(font)
         painter.drawText(QPoint(0,s.height()+20), self.module.name)
 
+    def resize(self, plus_or_minus):
+        if not plus_or_minus:
+            self.SCALE += 0.5
+        else:
+            self.SCALE -= 0.5
+        self.SIZE = QSize(self.SCALE*50, self.SCALE*50)
+        self.bounding_box = QRect(self.bounding_box.topLeft(), self.SIZE)
+        self.pins = self.get_pins()
+
 class MonitorElement(Element):
+    SCALE = 1
     SIZE = QSize(50, 50)
 
     def __init__(self, label, size):
@@ -234,25 +283,38 @@ class MonitorElement(Element):
         self.min_dist = 25
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        self.pins = []
-        self.get_pins()        
+        self.pins = self.get_pins()        
 
     def get_pins(self):
         bb = self.bounding_box
-        self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 2), 'input', self.size))
+        pins = []
+        pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 2), 'input', self.size))
+        return pins
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
+        font = QFont()
+        font.setPointSize(self.SCALE + 10)
 
         s = self.SIZE
         painter.drawEllipse(QRect(QPoint(), self.SIZE))
         self.draw_pins(painter)
+        painter.setFont(font)
         painter.drawText(QPoint(0,s.height()+20), self.module.name)
+
+    def resize(self, plus_or_minus):
+        if not plus_or_minus:
+            self.SCALE += 0.5
+        else:
+            self.SCALE -= 0.5
+        self.SIZE = QSize(self.SCALE*50, self.SCALE*50)
+        self.bounding_box = QRect(self.bounding_box.topLeft(), self.SIZE)
+        self.pins = self.get_pins()
 
 class WireElement:
     def __init__(self, connection, points):
-        self.label = None#get_label('wire')
+        self.label = None
         self.connection = connection
         self.points = points
 

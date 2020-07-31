@@ -32,7 +32,6 @@ class SchematicEditor(QWidget):
         self.guidelines = list()
         self._ghost_wire = None
         self.wiring_mode = False
-        self.closest_point = None
 
         self._wire_start = False
         self.is_bus = False
@@ -149,9 +148,6 @@ class SchematicEditor(QWidget):
                 if self.is_bus:
                     self._draw_wire(painter, self._ghost_wire, True, 4)
 
-            if self.closest_point is not None:
-                p = self.closest_point
-                painter.drawEllipse(p.x() - 4, p.y() - 4, 8, 8)
 
     def _pick(self, p):
         for element in self.elements:
@@ -321,6 +317,17 @@ class SchematicEditor(QWidget):
                 self.update()
         elif e.key() == Qt.Key_Backspace:
             del self._ghost_wire[-1]
+        
+    # def keyPressEvent(self, e):
+        elif e.key() == Qt.Key_Plus and e.modifiers() & Qt.ControlModifier:
+            for element in self.selected_elements:
+                element.resize(0)
+                self.update()
+        elif e.key() == Qt.Key_Minus and e.modifiers() & Qt.ControlModifier:
+            for element in self.selected_elements:
+                element.resize(1)
+                self.update()
+
 
     def continuous_update(self, netlist):
         for wire in netlist:
