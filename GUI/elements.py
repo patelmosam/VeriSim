@@ -77,8 +77,8 @@ class GeneralElement(Element):
         path = QPainterPath()
         s = self.SIZE
         path.moveTo(QPoint())
-        path.lineTo(QPoint(s.width() - 5, 0))
-        path.lineTo(QPoint(s.width() - 5, s.height()))
+        path.lineTo(QPoint(s.width(), 0))
+        path.lineTo(QPoint(s.width(), s.height()))
         path.lineTo(QPoint(0, s.height()))
         path.closeSubpath()
         painter.drawPath(path)

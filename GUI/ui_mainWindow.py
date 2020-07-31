@@ -17,6 +17,7 @@ from PySide2.QtWidgets import *
 from GUI.schematicWindow import SchematicEditor
 import GUI.icons_rc
 from GUI.ui_dialog import Ui_Dialog
+from GUI.add_component import Ui_AddDialog
 import sys
 from GUI.backend import *
 from engine.engine import *
@@ -158,6 +159,14 @@ class Ui_MainWindow(object):
 
         self.toolBar.addAction(self.actionDialog)
 
+        self.actionDialog2 = QAction(MainWindow)
+        self.actionDialog2.setObjectName(u"Addcomponents")
+        icon4 = QIcon()
+        icon4.addFile(u":/images/images/disk--pencil.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionDialog2.setIcon(icon4)
+
+        self.toolBar.addAction(self.actionDialog2)
+
         self.actionBuild = QAction(MainWindow)
         self.actionBuild.setObjectName(u"Build")
         icon4 = QIcon()
@@ -171,7 +180,8 @@ class Ui_MainWindow(object):
         QMetaObject.connectSlotsByName(MainWindow)
 
         self.actionWire.triggered.connect(lambda : self.wire_mode(icon1, icon2))
-        self.actionDialog.triggered.connect(lambda : self.startDialog())
+        self.actionDialog.triggered.connect(lambda : self.startComponentDialog())
+        self.actionDialog2.triggered.connect(lambda : self.startAddComponentDialog())
         self.actionBuild.triggered.connect(lambda : self.build())
     # setupUi
 
@@ -210,12 +220,19 @@ class Ui_MainWindow(object):
             self.ed.wiring_mode = True
             self.actionWire.setIcon(icon2)
 
-    def startDialog(self):
-        dlg = fileDialog(self)
+    def startComponentDialog(self):
+        dlg = ComponentDialog(self)
         dlg.exec_()
         element = get_module(dlg.selection,len(self.ed.elements)+1)
         if element is not None:
             self.ed.elements.append(element)
+        
+    def startAddComponentDialog(self):
+        dlg = AddComponentDialog(self)
+        dlg.exec_()
+        file_path = dlg.lineEdit.text()
+        name = dlg.lineEdit_2.text()
+        self.ed.elements.append(GeneralElement(file_path, name))
         
 
     def build(self):
@@ -227,13 +244,18 @@ class Ui_MainWindow(object):
         e.create_module('test.v')
         self.myStatus.showMessage("Build sucessful", 3000)
 
-    def getDialogInfo(self, dialogue):
-        print("ddd")
-        
+    # def getDialogInfo(self, dialogue):
+    #     print("ddd")
 
-class fileDialog(QDialog, Ui_Dialog):
+class ComponentDialog(QDialog, Ui_Dialog):
     def __init__(self,parent):
         super().__init__(parent)
         self.setupUi(self)
-        self.setWindowTitle("components")
-        # self.pushButton.clicked.connect(self.accept)
+        self.setWindowTitle("Components")
+
+class AddComponentDialog(QDialog, Ui_AddDialog):
+    def __init__(self,parent):
+        super().__init__(parent)
+        self.setupUi(self)
+        self.setWindowTitle("Add Component")
+        
