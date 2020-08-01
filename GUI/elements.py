@@ -55,24 +55,27 @@ class GeneralElement(Element):
         self.input_pins = len(self.module.inputs)
         self.output_pins = len(self.module.outputs)
         self.min_dist = 25
-        H = (max([self.input_pins, self.output_pins]) + 1)*(self.min_dist)
-        self.SIZE = QSize(100, H)
+        self.H = (max([self.input_pins, self.output_pins]) + 1)*(self.min_dist)
+        self.SCALE = 1
+        self.SIZE = QSize(self.SCALE*100, self.SCALE*self.H)
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        self.pins = []
-        self.get_pins()
+        self.pins = self.get_pins()
 
     def get_pins(self):
         bb = self.bounding_box
+        pins = []
         for i,s in zip(range(self.input_pins),self.module.inputs):
-            self.pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, (i+1)*(bb.height() / (self.input_pins + 1))), 'input', len(s)))
+            pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, (i+1)*(bb.height() / (self.input_pins + 1))), 'input', len(s)))
         for i,s in zip(range(self.output_pins),self.module.outputs):
-            self.pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, (i+1)*(bb.height() / (self.output_pins + 1))), 'output', len(s)))
- 
+            pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, (i+1)*(bb.height() / (self.output_pins + 1))), 'output', len(s)))
+        return pins
 
     def paint(self, painter):
         painter.setPen(QPen(Qt.blue, 2))
         painter.setBrush(Qt.white)
+        font = QFont()
+        font.setPointSize(self.SCALE + 10)
 
         path = QPainterPath()
         s = self.SIZE
@@ -82,9 +85,18 @@ class GeneralElement(Element):
         path.lineTo(QPoint(0, s.height()))
         path.closeSubpath()
         painter.drawPath(path)
+        painter.setFont(font)
         painter.drawText(QPoint(0,s.height()+20), self.module.name)
-        # painter.drawEllipse(QPoint(s.width() - 2, s.height() / 2), 3, 3)
         self.draw_pins(painter)
+
+    def resize(self, plus_or_minus):
+        if not plus_or_minus:
+            self.SCALE += 0.5
+        else:
+            self.SCALE -= 0.5
+        self.SIZE = QSize(self.SCALE*100, self.SCALE*self.H)
+        self.bounding_box = QRect(self.bounding_box.topLeft(), self.SIZE)
+        self.pins = self.get_pins()
 
 class NotElement(Element):
     SCALE = 1
