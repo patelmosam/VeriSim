@@ -4,3 +4,6 @@ engine/__pycache__/
 GUI/images
 test.v
 a.out
+*.sqlite
+*.pyc
+*.out

@@ -21,6 +21,7 @@ from GUI.add_component import Ui_AddDialog
 import sys
 from GUI.backend import *
 from engine.engine import *
+from Resource.database import add_to_db
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -233,6 +234,7 @@ class Ui_MainWindow(object):
         file_path = dlg.lineEdit.text()
         name = dlg.lineEdit_2.text()
         self.ed.elements.append(GeneralElement(file_path, name))
+        add_to_db("Resource/elements.sqlite", name, file_path, "Gates")
         
 
     def build(self):

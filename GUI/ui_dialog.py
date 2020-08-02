@@ -14,7 +14,7 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
-
+from Resource.database import query
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -56,9 +56,9 @@ class Ui_Dialog(object):
         self.gridLayout.addWidget(self.pushButton_2, 2, 3, 1, 1)
 
         self.listWidget = QListWidget(Dialog)
-        QListWidgetItem(self.listWidget)
-        QListWidgetItem(self.listWidget)
-        QListWidgetItem(self.listWidget)
+        # QListWidgetItem(self.listWidget)
+        # QListWidgetItem(self.listWidget)
+        # QListWidgetItem(self.listWidget)
         self.listWidget.setObjectName(u"listWidget")
         self.listWidget.setMinimumSize(QSize(284, 630)) 
 
@@ -96,30 +96,31 @@ class Ui_Dialog(object):
         self.pushButton.setText(QCoreApplication.translate("Dialog", u"Cancel", None))
         self.pushButton_2.setText(QCoreApplication.translate("Dialog", u"OK", None))
 
-        __sortingEnabled = self.listWidget.isSortingEnabled()
-        self.listWidget.setSortingEnabled(False)
-        ___qlistwidgetitem = self.listWidget.item(0)
-        ___qlistwidgetitem.setText(QCoreApplication.translate("Dialog", u"Gates", None));
-        ___qlistwidgetitem1 = self.listWidget.item(1)
-        ___qlistwidgetitem1.setText(QCoreApplication.translate("Dialog", u"Inputs", None));
-        ___qlistwidgetitem2 = self.listWidget.item(2)
-        ___qlistwidgetitem2.setText(QCoreApplication.translate("Dialog", u"Outputs", None));
-        self.listWidget.setSortingEnabled(__sortingEnabled)
+        self.listWidget.addItems(list(dict.fromkeys(query('Elements', 'category'))))
+
+        # __sortingEnabled = self.listWidget.isSortingEnabled()
+        # self.listWidget.setSortingEnabled(False)
+        # ___qlistwidgetitem = self.listWidget.item(0)
+        # ___qlistwidgetitem.setText(QCoreApplication.translate("Dialog", u"Gates", None));
+        # ___qlistwidgetitem1 = self.listWidget.item(1)
+        # ___qlistwidgetitem1.setText(QCoreApplication.translate("Dialog", u"Inputs", None));
+        # ___qlistwidgetitem2 = self.listWidget.item(2)
+        # ___qlistwidgetitem2.setText(QCoreApplication.translate("Dialog", u"Outputs", None));
+        # self.listWidget.setSortingEnabled(__sortingEnabled)
 
     # retranslateUi
 
     def _handleClick(self, item):
-        if item.text() == 'Gates':
-            self.clear_items()
-            self.listWidget_2.addItems(['And','Or','Not'])
-        elif item.text() == 'Inputs':
-            self.clear_items()
-            self.listWidget_2.addItems(['Input'])
-        elif item.text() == 'Outputs':
-            self.clear_items()
-            self.listWidget_2.addItems(['Monitor'])
+        components = query('Elements','*')
+        types = list(dict.fromkeys(query('Elements', 'category'))) 
+        elements_data = {}
 
-        # item.setSelected(False)
+        for _type in types:
+            elements_data[_type] = query('Elements', 'name', 'category', _type)
+
+        self.clear_items()
+        self.listWidget_2.addItems(elements_data[item.text()])
+        
 
     def clear_items(self):
         item = 1

@@ -87,6 +87,7 @@ class Ui_AddDialog(object):
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,"Open File", "","Verilog Files (*.v)", options=options)
         if fileName:
-            self.lineEdit.insert(fileName)
+            if fileName is not None:
+                self.lineEdit.insert(fileName)
         
             
