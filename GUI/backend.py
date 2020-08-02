@@ -82,3 +82,6 @@ def get_module(label, no):
         return MonitorElement('m'+str(no), 1)
     else:
         return None
+
+def make_module(file_path, no):
+    return GeneralElement(file_path, 'm'+str(no))

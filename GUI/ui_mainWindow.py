@@ -21,7 +21,7 @@ from GUI.add_component import Ui_AddDialog
 import sys
 from GUI.backend import *
 from engine.engine import *
-from Resource.database import add_to_db
+from Resource.database import add_to_db, query
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -227,14 +227,19 @@ class Ui_MainWindow(object):
         element = get_module(dlg.selection,len(self.ed.elements)+1)
         if element is not None:
             self.ed.elements.append(element)
+        else:
+            file_path = query('Elements', 'file_path', 'name', dlg.selection)[0]
+            element = make_module(file_path, len(self.ed.elements)+1)
+            self.ed.elements.append(element)
         
     def startAddComponentDialog(self):
         dlg = AddComponentDialog(self)
         dlg.exec_()
         file_path = dlg.lineEdit.text()
         name = dlg.lineEdit_2.text()
-        self.ed.elements.append(GeneralElement(file_path, name))
-        add_to_db("Resource/elements.sqlite", name, file_path, "Gates")
+        category = dlg.catagory
+        if not file_path == '' and not name == '':
+            add_to_db("Resource/elements.sqlite", name, file_path, category)
         
 
     def build(self):
@@ -246,8 +251,6 @@ class Ui_MainWindow(object):
         e.create_module('test.v')
         self.myStatus.showMessage("Build sucessful", 3000)
 
-    # def getDialogInfo(self, dialogue):
-    #     print("ddd")
 
 class ComponentDialog(QDialog, Ui_Dialog):
     def __init__(self,parent):

@@ -14,13 +14,14 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
-
+from Resource.database import query
 
 class Ui_AddDialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
         Dialog.resize(558, 344)
+        self.catagory = 'Gates'
         self.gridLayout = QGridLayout(Dialog)
         self.gridLayout.setObjectName(u"gridLayout")
         self.label = QLabel(Dialog)
@@ -55,6 +56,9 @@ class Ui_AddDialog(object):
 
         self.comboBox = QComboBox(Dialog)
         self.comboBox.setObjectName(u"comboBox")
+        category = list(dict.fromkeys(query('Elements', 'category')))
+        category.append('Add new')
+        self.comboBox.insertItems(0, category)
 
         self.gridLayout.addWidget(self.comboBox, 2, 1, 1, 1)
 
@@ -66,6 +70,8 @@ class Ui_AddDialog(object):
         self.gridLayout.addWidget(self.buttonBox, 3, 0, 1, 2)
 
         self.BrowseButton.clicked.connect(lambda : self.openFileNameDialog())
+
+        self.comboBox.currentIndexChanged.connect(self._get_catagory)
 
         self.retranslateUi(Dialog)
         self.buttonBox.accepted.connect(Dialog.accept)
@@ -89,5 +95,18 @@ class Ui_AddDialog(object):
         if fileName:
             if fileName is not None:
                 self.lineEdit.insert(fileName)
+
+    def _get_catagory(self, item):
+        if self.comboBox.currentText() == 'Add new':
+            self.get_new_category()
+        self.catagory = self.comboBox.currentText()
         
+    def get_new_category(self):
+        text, ok = QInputDialog.getText(self, 'New Category', 'Enter the new category:')
+        if ok:
+            count = self.comboBox.count()
+            self.comboBox.removeItem(count-1)
+            self.comboBox.insertItem(count-1, str(text))   
+
+
             
