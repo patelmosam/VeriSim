@@ -165,13 +165,6 @@ class SchematicEditor(QWidget):
         return None, None, None
 
 
-    # def check_wire_tip(self, pos):
-    #     if self.wire_tip is not None:
-    #         if self.wire_tip.x()-8 <= pos.x() and self.wire_tip.y()-8 <= pos.y():
-    #             if self.wire_tip.x()+8 >= pos.x() and self.wire_tip.y()+8 >= pos.y():
-    #                 return self.wire_tip
-    #     return None 
-
     def mousePressEvent(self, e):
         selected_pin, in_element, pin_index = self.get_selected_pin(e.pos())
         if selected_pin:
@@ -289,25 +282,8 @@ class SchematicEditor(QWidget):
         # self._build_guidelines()
         self.update()
 
-    # def _leave_wiring_mode(self):
-    #     self.wiring_mode = False
-
-    # def _enter_wiring_mode(self):
-    #     self.wiring_mode = True
-    #     self._ghost_wire = None
-    #     self.closest_point = None
-    #     self.selected_elements = list()
-    #     # self._build_guidelines()
 
     def keyReleaseEvent(self, e):
-        # if e.key() == Qt.Key_W:
-        #     if not self.wiring_mode:
-        #         self._enter_wiring_mode()
-        #         self.wiring_mode = True
-        #     else:
-        #         self._leave_wiring_mode()
-        #         self.wiring_mode = False
-        #     self.update()
         if e.key() == Qt.Key_Escape:
             if self.wiring_mode:
                 self.wiring_mode = False
