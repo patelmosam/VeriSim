@@ -173,8 +173,9 @@ class SchematicEditor(QWidget):
     #     return None 
 
     def mousePressEvent(self, e):
-        if self.wiring_mode:
-            selected_pin, in_element, pin_index = self.get_selected_pin(e.pos())
+        selected_pin, in_element, pin_index = self.get_selected_pin(e.pos())
+        if selected_pin:
+            self.wiring_mode = True
             if not self._wire_start:
                 if selected_pin is not None:
                     if in_element.pins[pin_index].size > 1:
@@ -253,6 +254,7 @@ class SchematicEditor(QWidget):
                         self._ghost_wire = None
                         self._wire_start = False
                         wire_end = None
+                        self.wiring_mode = False
                     else:
                         if self._ghost_wire is not None:
                             self._ghost_wire.append(e.pos())
@@ -287,29 +289,30 @@ class SchematicEditor(QWidget):
         # self._build_guidelines()
         self.update()
 
-    def _leave_wiring_mode(self):
-        self.wiring_mode = False
+    # def _leave_wiring_mode(self):
+    #     self.wiring_mode = False
 
-    def _enter_wiring_mode(self):
-        self.wiring_mode = True
-        self._ghost_wire = None
-        self.closest_point = None
-        self.selected_elements = list()
-        # self._build_guidelines()
+    # def _enter_wiring_mode(self):
+    #     self.wiring_mode = True
+    #     self._ghost_wire = None
+    #     self.closest_point = None
+    #     self.selected_elements = list()
+    #     # self._build_guidelines()
 
     def keyReleaseEvent(self, e):
-        if e.key() == Qt.Key_W:
-            if not self.wiring_mode:
-                self._enter_wiring_mode()
-                self.wiring_mode = True
-            else:
-                self._leave_wiring_mode()
-                self.wiring_mode = False
-            self.update()
-        elif e.key() == Qt.Key_Escape:
+        # if e.key() == Qt.Key_W:
+        #     if not self.wiring_mode:
+        #         self._enter_wiring_mode()
+        #         self.wiring_mode = True
+        #     else:
+        #         self._leave_wiring_mode()
+        #         self.wiring_mode = False
+        #     self.update()
+        if e.key() == Qt.Key_Escape:
             if self.wiring_mode:
-                self._leave_wiring_mode()
                 self.wiring_mode = False
+                self._ghost_wire = None
+                self._wire_start = False
                 self.update()
         elif e.key() == Qt.Key_Delete:
             for element in self.selected_elements:
