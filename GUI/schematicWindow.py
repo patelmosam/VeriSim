@@ -48,6 +48,7 @@ class SchematicEditor(QWidget):
         self.start_element = None
         self.pin_index = None
         self.label_dict = {'module':[], 'io':[], 'wire':[]}
+        self.highlight_pin = None
         self.get_pins()
 
     def get_pins(self):
@@ -94,16 +95,12 @@ class SchematicEditor(QWidget):
                 for i in range(len(wire.points)-1):
                     painter.drawLine(wire.points[i],wire.points[i+1])
 
-    def _draw_pin(self, painter, point, pin):
+    def _highlight_pin(self, painter):
         fill_color = QColor(255, 255, 255)
-        outline_color = QColor(0, 0, 255)
+        outline_color = QColor(255, 0, 0)
         painter.setBrush(fill_color)
-        painter.setPen(QPen(outline_color, 2))
-        # # painter.drawEllipse(point.x() - 4, point.y() - 4, 8, 8)
-        # if pin.type == 'input':
-        #     painter.drawLine(point.x(), point.y(), point.x()+10, point.y())
-        # elif pin.type == 'output':
-        #     painter.drawLine(point.x()-10, point.y(), point.x(), point.y())
+        painter.setPen(QPen(outline_color, 2, Qt.DotLine))
+        painter.drawEllipse(self.highlight_pin.x() - 3, self.highlight_pin.y() - 3, 6, 6)
 
     def paintEvent(self, *args):
         painter = QPainter(self)
@@ -121,10 +118,8 @@ class SchematicEditor(QWidget):
         self._draw_wires(painter, self.wires)
         self._draw_wires(painter, self.buses, 4)
 
-        for element in self.elements:
-            for pin in element.pins:
-                p = pin.position + element.bounding_box.topLeft()
-                self._draw_pin(painter, p, pin)
+        if self.highlight_pin is not None:
+            self._highlight_pin(painter)
 
         painter.setPen(QPen(Qt.red, 1, Qt.DashLine))
         painter.setBrush(Qt.transparent)
@@ -180,6 +175,7 @@ class SchematicEditor(QWidget):
                     self._ghost_wire = [selected_pin]
                     self.start_element = in_element
                     self.pin_index = pin_index
+                    self.highlight_pin = None
                     selected_pin = None
         else:
             self.grabbed_element = self._pick(e.pos())
@@ -208,6 +204,7 @@ class SchematicEditor(QWidget):
                         self._ghost_wire[-1] = e.pos()
             else:
                 self._ghost_wire = None
+            self.highlight_pin, _, _ = self.get_selected_pin(e.pos())
             self.update()
         else:
             if self.grabbed_element is not None:
@@ -227,6 +224,8 @@ class SchematicEditor(QWidget):
                         if self.select_rect.contains(element.bounding_box):
                             self.selected_elements.append(element)
                 self.update()
+            self.highlight_pin, _, _ = self.get_selected_pin(e.pos())
+            self.update()
 
     def mouseReleaseEvent(self, e):
         if self.wiring_mode:
@@ -248,6 +247,7 @@ class SchematicEditor(QWidget):
                         self._wire_start = False
                         wire_end = None
                         self.wiring_mode = False
+                        self.highlight_pin = None
                     else:
                         if self._ghost_wire is not None:
                             self._ghost_wire.append(e.pos())
