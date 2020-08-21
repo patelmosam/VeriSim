@@ -142,15 +142,15 @@ class Ui_MainWindow(object):
         # self.myStatus.showMessage("Status Bar Is Ready", 3000)
         self.setStatusBar(self.myStatus)
 
-        self.actionWire = QAction(MainWindow)
-        self.actionWire.setObjectName(u"actionWire")
-        icon1 = QIcon()
-        icon1.addFile(u":/images/images/scissors.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionWire.setIcon(icon1)
-        icon2 = QIcon()
-        icon2.addFile(u":/images/images/question.png", QSize(), QIcon.Normal, QIcon.Off)
+        # self.actionWire = QAction(MainWindow)
+        # self.actionWire.setObjectName(u"actionWire")
+        # icon1 = QIcon()
+        # icon1.addFile(u":/images/images/scissors.png", QSize(), QIcon.Normal, QIcon.Off)
+        # self.actionWire.setIcon(icon1)
+        # icon2 = QIcon()
+        # icon2.addFile(u":/images/images/question.png", QSize(), QIcon.Normal, QIcon.Off)
         
-        self.toolBar.addAction(self.actionWire)
+        # self.toolBar.addAction(self.actionWire)
 
         self.actionDialog = QAction(MainWindow)
         self.actionDialog.setObjectName(u"components")
@@ -180,7 +180,7 @@ class Ui_MainWindow(object):
 
         QMetaObject.connectSlotsByName(MainWindow)
 
-        self.actionWire.triggered.connect(lambda : self.wire_mode(icon1, icon2))
+        # self.actionWire.triggered.connect(lambda : self.wire_mode(icon1, icon2))
         self.actionDialog.triggered.connect(lambda : self.startComponentDialog())
         self.actionDialog2.triggered.connect(lambda : self.startAddComponentDialog())
         self.actionBuild.triggered.connect(lambda : self.build())
@@ -213,13 +213,13 @@ class Ui_MainWindow(object):
         self.toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi
 
-    def wire_mode(self, icon1, icon2):
-        if self.ed.wiring_mode:
-            self.ed.wiring_mode = False
-            self.actionWire.setIcon(icon1)
-        else:
-            self.ed.wiring_mode = True
-            self.actionWire.setIcon(icon2)
+    # def wire_mode(self, icon1, icon2):
+    #     if self.ed.wiring_mode:
+    #         self.ed.wiring_mode = False
+    #         self.actionWire.setIcon(icon1)
+    #     else:
+    #         self.ed.wiring_mode = True
+    #         self.actionWire.setIcon(icon2)
 
     def startComponentDialog(self):
         dlg = ComponentDialog(self)
