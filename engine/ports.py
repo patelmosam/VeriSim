@@ -41,7 +41,7 @@ class InputModule:
     def __init__(self, label, size):
         self.label = label
         # self.no_of_ports = no_of_ports
-        self.name = 'InputModule'
+        self.name = 'Input'
         self.ports = []
         self.value = []
         self.size = size
