@@ -18,6 +18,7 @@ from GUI.schematicWindow import SchematicEditor
 import GUI.icons_rc
 from GUI.ui_dialog import Ui_Dialog
 from GUI.add_component import Ui_AddDialog
+from GUI.ui_new_component import Ui_NewDialog
 import sys
 from GUI.backend import *
 from engine.engine import *
@@ -176,6 +177,14 @@ class Ui_MainWindow(object):
 
         self.toolBar.addAction(self.actionBuild)
 
+        self.actionNewComponent = QAction(MainWindow)
+        self.actionNewComponent.setObjectName(u"NewComponent")
+        icon5 = QIcon()
+        icon5.addFile(u":/images/images/edit-color.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionNewComponent.setIcon(icon5)
+
+        self.toolBar.addAction(self.actionNewComponent)
+
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -184,6 +193,7 @@ class Ui_MainWindow(object):
         self.actionDialog.triggered.connect(lambda : self.startComponentDialog())
         self.actionDialog2.triggered.connect(lambda : self.startAddComponentDialog())
         self.actionBuild.triggered.connect(lambda : self.build())
+        self.actionNewComponent.triggered.connect(lambda : self.startAddNewComponentDialog())
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -241,6 +251,12 @@ class Ui_MainWindow(object):
         if not file_path == '' and not name == '':
             add_to_db("Resource/elements.sqlite", name, file_path, category)
         
+    def startAddNewComponentDialog(self):
+        dlg = AddNewComponentDialog(self)
+        dlg.exec_()
+        file_path = dlg.lineEdit.text()
+        element = make_module(file_path, len(self.ed.elements)+1)
+        self.ed.elements.append(element)
 
     def build(self):
         elements, io_elements = get_elements(self.ed.elements)
@@ -264,3 +280,8 @@ class AddComponentDialog(QDialog, Ui_AddDialog):
         self.setupUi(self)
         self.setWindowTitle("Add Component")
         
+class AddNewComponentDialog(QDialog, Ui_NewDialog):
+    def __init__(self,parent):
+        super().__init__(parent)
+        self.setupUi(self)
+        self.setWindowTitle("New Component")
