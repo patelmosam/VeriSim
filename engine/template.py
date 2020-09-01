@@ -26,13 +26,17 @@ def module(name, files, modules, port_dict, size_dict, io_dict, port_list):
                 
         # module defination
         name = name.split('/')[-1]
-        tb.write('module ' + name.split('.')[0] + '(')
-        for o in io_dict['output']:
-            tb.write(o+', ')
-        for i in io_dict['input']:
-            tb.write(i+', ')
-        tb.seek(tb.tell()-2,os.SEEK_SET)
-        tb.write(');\n')
+        tb.write('module ' + name.split('.')[0]) 
+        if(len(io_dict['output'])>0 and len(io_dict['input'])>0):
+            tb.write("(")
+            for o in io_dict['output']:
+                tb.write(o+', ')
+            for i in io_dict['input']:
+                tb.write(i+', ')
+            tb.seek(tb.tell()-2,os.SEEK_SET)
+            tb.write(');\n')
+        else:
+            tb.write(';')
         tb.write('\n')
 
         for si in isize:
