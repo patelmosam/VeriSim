@@ -1,59 +1,55 @@
+# verilog parser v2.0
+
 from engine.ports import Port
 
 def verilog_parser(file_path, label):
     inputs = []
     outputs = []
     with open(file_path) as file:
-            data = file.read()
-            data = data.split('\n')
-            for line in data:
-                for l in line.split():
-                    if l=='module':
-                        line = line.replace('(',' ')
-                        name = line.split()[1]
-                    elif l=='input':
-                        size = 0
-                        for i in line.split():
-                            if i[0]=='[':
-                                s = i[1:].replace(':',' ')
-                                s = s.split(' ')
-                                size = int(s[0]) - int(s[1][:-1])
-                            if i!='input' and i[0]!='[':
-                                i = i.replace(',','')
-                                _input = []
-                                for p in range(size+1):
-                                    _input.append(Port(i.replace(';',''), 'input', label, p))
-                                inputs.append(_input)
+        data = file.read()
+        data = data.split('\n')
+        for line in data:
+            line = line.strip()
 
-                    elif l=='output':
+            if(line[:4]=="wire " or line[:3]=="reg "):
+                break
+
+            if(line[:2]!="//"):
+                is_module = line.find("module")
+                is_input = line.find("input")
+                is_output = line.find("output")
+                is_comment = line.find("//")
+                if(is_comment>0):
+                    line = line[:is_comment]
+                    line = line.strip()
+
+                if(is_module==0):
+                    name = line.replace("("," ").split()[1].strip()
+
+                if(is_input>=0):
+                    osb, csb = line.find("["), line.find("]")
+                    if(osb>=0 and csb >=0):
+                        r = line[osb+1:csb].replace(":"," ").split(" ")
+                        size = abs(int(r[0]) - int(r[-1]))
+                    else:
                         size = 0
-                        for i in line.split():
-                            if i[0]=='[':
-                                s = i[1:].replace(':',' ')
-                                s = s.split(' ')
-                                size = int(s[0]) - int(s[1][:-1])
-                            if i!='output' and i!='reg' and i[0]!='[':
-                                i = i.replace(',','')
-                                _output = []
-                                for p in range(size+1):
-                                    _output.append(Port(i.replace(';',''), 'output', label, p))
-                                outputs.append(_output)
-                    
-                    elif l=="endmodule":
-                        return inputs, outputs, name
+                    port_name = line.split(" ")[-1].strip(";").strip(",")
+                    _input = []
+                    for p in range(size+1):
+                        _input.append(Port(port_name, 'input', label, p))
+                    inputs.append(_input)
+
+                if(is_output>=0):
+                    osb, csb = line.find("["), line.find("]")
+                    if(osb>=0 and csb >=0):
+                        r = line[osb+1:csb].replace(":"," ").split(" ")
+                        size = abs(int(r[0]) - int(r[-1]))
+                    else:
+                        size = 0
+                    port_name = line.split(" ")[-1].strip(";").strip(",")
+                    _output = []
+                    for p in range(size+1):
+                        _output.append(Port(port_name, 'input', label, p))
+                    outputs.append(_output)
+
     return inputs, outputs, name
-
-# def outfile_parser(file_path):
-    # with open(command.split()[-1]) as file:
-        #     data = file.read()
-        #     data = data.split('\n')
-        #     for line in data:
-        #         if not line=='':
-        #             if line[0]!="#" and line[0]!=":":
-        #                 for l in line.split():
-        #                     if l=="module,":
-        #                         self.name = line.split()[3][1:-1]
-        #                     elif l=="/INPUT":
-        #                         self.inputs.append(Port(line.split()[-1][1:-1], 'input', self.name, int(line.split()[-2])))
-        #                     elif l=="/OUTPUT":
-        #                         self.outputs.append(Port(line.split()[-1][1:-1], 'output', self.name, int(line.split()[-2])))
