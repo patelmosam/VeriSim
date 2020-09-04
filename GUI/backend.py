@@ -80,6 +80,8 @@ def get_module(label, no):
         return InputElement('m'+str(no), 1)
     elif label=='Monitor':
         return MonitorElement('m'+str(no), 1)
+    elif label=='Mux_2_1':
+        return MuxElement('m'+str(no))
     else:
         return None
 

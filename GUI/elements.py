@@ -24,10 +24,12 @@ class Element:
     def draw_pins(self, painter):
         for pin in self.pins:
             point = pin.position
-            if pin.type == 'input':
+            if pin.type == 'input' and pin.direction == QVector2D(-1,0):
                 painter.drawLine(point.x(), point.y(), point.x()+10, point.y())
-            elif pin.type == 'output':
+            elif pin.type == 'output' and pin.direction == QVector2D(1,0):
                 painter.drawLine(point.x()-10, point.y(), point.x(), point.y())
+            elif pin.type == 'input' and pin.direction == QVector2D(0,-1):
+                painter.drawLine(point.x(), point.y()-10, point.x(), point.y())
 
 
 class Pin:
@@ -244,6 +246,56 @@ class OrElement(Element):
         self.SIZE = QSize(self.SCALE*50, self.SCALE*0.75*50)
         self.bounding_box = QRect(self.bounding_box.topLeft(), self.SIZE)
         self.pins = self.get_pins()
+
+class MuxElement(Element):
+    SCALE = 1
+    SIZE = QSize(0.5*50, 50)
+
+    def __init__(self, label):
+        self.bounding_box = QRect(QPoint(), self.SIZE)
+        self.oriantation = 0
+        self.file = "components/mux/mux_2_1.v"
+        self.label = label
+        self.module = Module(self.file, self.label)
+        self.pins = self.get_pins()
+
+    def get_pins(self):
+        bb = self.bounding_box
+        pins = []
+        pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, bb.height() / 3), 'input'))
+        pins.append(Pin(None, QVector2D(-1, 0), QPoint(-10, 2 * bb.height() / 3), 'input'))
+        pins.append(Pin(None, QVector2D(0, -1), QPoint(bb.width()/2, 7 * bb.height()/8 +10), 'input'))
+        pins.append(Pin(None, QVector2D(1, 0), QPoint(bb.width()+10, bb.height() / 2), 'output'))
+        return pins
+
+    def paint(self, painter):
+        painter.setPen(QPen(Qt.blue, 2))
+        painter.setBrush(Qt.white)
+        font = QFont()
+        font.setPointSize(self.SCALE + 10)
+
+        path = QPainterPath()
+        s = self.SIZE
+
+        path.moveTo(QPoint())
+        path.lineTo(QPoint(s.width(), s.height()/4))
+        path.lineTo(QPoint(s.width(), 3 * s.height()/4))
+        path.lineTo(QPoint(0, s.height()))
+        path.closeSubpath()
+        painter.drawPath(path)
+        painter.setFont(font)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name)
+        self.draw_pins(painter)
+
+    def resize(self, plus_or_minus):
+        if not plus_or_minus:
+            self.SCALE += 0.5
+        else:
+            self.SCALE -= 0.5
+        self.SIZE = QSize(self.SCALE*0.5*50, self.SCALE*50)
+        self.bounding_box = QRect(self.bounding_box.topLeft(), self.SIZE)
+        self.pins = self.get_pins()
+
 
 class InputElement(Element):
     SCALE = 1
