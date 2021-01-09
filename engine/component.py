@@ -185,7 +185,7 @@ class Layout:
     def get_io_dict(self):
         io_dict = {'input':[], 'isize':[], 'output':[], 'osize':[]}
         for io in self.IO_devices:
-            if io.name=='InputModule':
+            if io.name=='Input':
                 io_dict['input'].append('Input_'+io.ports[0].label)
                 io_dict['isize'].append(len(io.ports))
             if io.name=='Monitor':

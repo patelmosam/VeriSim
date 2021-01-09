@@ -88,7 +88,7 @@ class GeneralElement(Element):
         path.closeSubpath()
         painter.drawPath(path)
         painter.setFont(font)
-        painter.drawText(QPoint(0,s.height()+20), self.module.name)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name +" ("+self.module.label+")")
         self.draw_pins(painter)
 
     def resize(self, plus_or_minus):
@@ -133,7 +133,7 @@ class NotElement(Element):
         path.closeSubpath()
         painter.drawPath(path)
         painter.setFont(font)
-        painter.drawText(QPoint(0,s.height()+20), self.module.name)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name +" ("+self.module.label+")")
         painter.drawEllipse(QPoint(s.width() - 2, s.height() / 2), 3, 3)
         self.draw_pins(painter)
 
@@ -184,7 +184,7 @@ class AndElement(Element):
         painter.drawPath(path)
         self.draw_pins(painter)
         painter.setFont(font)
-        painter.drawText(QPoint(0,s.height()+20), self.module.name)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name +" ("+self.module.label+")")
 
     def resize(self, plus_or_minus):
         if not plus_or_minus:
@@ -236,7 +236,7 @@ class OrElement(Element):
         painter.drawPath(path)
         self.draw_pins(painter)
         painter.setFont(font)
-        painter.drawText(QPoint(0,s.height()+20), self.module.name)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name +" ("+self.module.label+")")
 
     def resize(self, plus_or_minus):
         if not plus_or_minus:
@@ -284,7 +284,7 @@ class MuxElement(Element):
         path.closeSubpath()
         painter.drawPath(path)
         painter.setFont(font)
-        painter.drawText(QPoint(0,s.height()+20), self.module.name)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name +" ("+self.module.label+")")
         self.draw_pins(painter)
 
     def resize(self, plus_or_minus):
@@ -325,7 +325,7 @@ class InputElement(Element):
         painter.drawEllipse(QRect(QPoint(), self.SIZE))
         self.draw_pins(painter)
         painter.setFont(font)
-        painter.drawText(QPoint(0,s.height()+20), self.module.name)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name +" ("+self.module.label+")")
 
     def resize(self, plus_or_minus):
         if not plus_or_minus:
@@ -365,7 +365,7 @@ class MonitorElement(Element):
         painter.drawEllipse(QRect(QPoint(), self.SIZE))
         self.draw_pins(painter)
         painter.setFont(font)
-        painter.drawText(QPoint(0,s.height()+20), self.module.name)
+        painter.drawText(QPoint(0,s.height()+20), self.module.name +" ("+self.module.label+")")
 
     def resize(self, plus_or_minus):
         if not plus_or_minus:

@@ -27,29 +27,45 @@ def verilog_parser(file_path, label):
                     name = line.replace("("," ").split()[1].strip()
 
                 if(is_input>=0):
-                    osb, csb = line.find("["), line.find("]")
-                    if(osb>=0 and csb >=0):
-                        r = line[osb+1:csb].replace(":"," ").split(" ")
-                        size = abs(int(r[0]) - int(r[-1]))
-                    else:
-                        size = 0
-                    port_name = line.split(" ")[-1].strip(";").strip(",")
-                    _input = []
-                    for p in range(size+1):
-                        _input.append(Port(port_name, 'input', label, p))
-                    inputs.append(_input)
+                    line = line.replace(","," ")
+                    line_list = line.split(" ")
+                    line_list = [l for l in line_list if l != "input" and l != ''] 
+                    
+                    for word in line_list:
+                        word = word.strip(";").strip(",")
+                        is_multisize = word.find("[") 
+                        if is_multisize > 0:
+                            r = word[is_multisize+1:-1].replace(':',' ').split(' ')
+                            size = abs(int(r[0]) - int(r[-1]))
+                            port_name = word[:is_multisize]
+                        else:
+                            size = 0
+                            port_name = word
+
+                        _input = []
+                        for p in range(size+1):
+                            _input.append(Port(port_name, 'input', label, p))
+                        inputs.append(_input)
 
                 if(is_output>=0):
-                    osb, csb = line.find("["), line.find("]")
-                    if(osb>=0 and csb >=0):
-                        r = line[osb+1:csb].replace(":"," ").split(" ")
-                        size = abs(int(r[0]) - int(r[-1]))
-                    else:
-                        size = 0
-                    port_name = line.split(" ")[-1].strip(";").strip(",")
-                    _output = []
-                    for p in range(size+1):
-                        _output.append(Port(port_name, 'input', label, p))
-                    outputs.append(_output)
+                    line = line.replace(","," ")
+                    line_list = line.split(" ")
+                    line_list = [l for l in line_list if l != "output" and l != ''] 
+
+                    for word in line_list:
+                        word = word.strip(";").strip(",")
+                        is_multisize = word.find("[") 
+                        if is_multisize > 0:
+                            r = word[is_multisize+1:-1].replace(':',' ').split(' ')
+                            size = abs(int(r[0]) - int(r[-1]))
+                            port_name = word[:is_multisize]
+                        else:
+                            size = 0
+                            port_name = word
+
+                        _output = []
+                        for p in range(size+1):
+                            _output.append(Port(port_name, 'input', label, p))
+                        outputs.append(_output)
 
     return inputs, outputs, name
