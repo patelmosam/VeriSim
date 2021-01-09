@@ -1,5 +1,5 @@
-`include "components/gates/and.v" 
-`include "components/gates/or.v" 
+`include "Resource/components/gates/and.v" 
+`include "Resource/components/gates/or.v" 
 
 module test(monitor_m6, Input_m3, Input_m4, Input_m5);
 

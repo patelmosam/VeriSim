@@ -1,10 +1,10 @@
 
 import os
 import subprocess
-from engine.template import module, testbanch
-from engine.component import *
-from engine.ports import *
-from engine.utils import *
+from src.engine.template import module, testbanch
+from src.engine.component import *
+from src.engine.ports import *
+from src.engine.utils import *
 
 class engine:
     def __init__(self, layout, module):

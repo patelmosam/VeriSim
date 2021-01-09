@@ -1,6 +1,6 @@
-from GUI.elements import *
-from engine.component import Module, Wire, Bus
-from GUI.schematicWindow import SchematicEditor as se
+from src.GUI.elements import *
+from src.engine.component import Module, Wire, Bus
+from src.GUI.schematicWindow import SchematicEditor as se
 
 def get_label(name, label_dict):
     pass

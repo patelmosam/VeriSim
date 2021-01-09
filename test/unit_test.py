@@ -1,9 +1,11 @@
 import sys
-sys.path.insert(1, '/home/mosam/Matrix/Nutron/Dev/VeriSim/')
+import os
+os.chdir("..")
+sys.path.insert(1, os.getcwd())
 
 import unittest
 from PySide2 import QtWidgets
-from GUI.elements import *
+from src.GUI.elements import *
 # from Resource.database import Init_db
 from app import VeriSimGUI
 

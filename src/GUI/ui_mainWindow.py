@@ -14,15 +14,15 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
-from GUI.schematicWindow import SchematicEditor
-import GUI.icons_rc
-from GUI.ui_dialog import Ui_Dialog
-from GUI.add_component import Ui_AddDialog
-from GUI.ui_new_component import Ui_NewDialog
+from src.GUI.schematicWindow import SchematicEditor
+import src.GUI.icons_rc
+from src.GUI.ui_dialog import Ui_Dialog
+from src.GUI.add_component import Ui_AddDialog
+from src.GUI.ui_new_component import Ui_NewDialog
 import sys
-from GUI.backend import *
-from engine.engine import *
-from Resource.database import add_to_db, query
+from src.GUI.backend import *
+from src.engine.engine import *
+from src.database import add_to_db, query
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):

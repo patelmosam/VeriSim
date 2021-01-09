@@ -1,8 +1,9 @@
 # from PySide2.QtWidgets import QWidget, QOpenGLWidget
 from PySide2.QtCore import QRect, QSize, Qt, QPoint, QMargins, QLine, QRectF
 from PySide2.QtGui import QColor, QPen, QPainter, QMouseEvent, QPolygon, QPainterPath, QVector2D, QPainterPathStroker, QFont
-from engine.component import Module
-from engine.ports import *
+from src.engine.component import Module
+from src.engine.ports import *
+from src.database import query
 
 class Element:
     def __init__(self, label):
@@ -107,7 +108,7 @@ class NotElement(Element):
     def __init__(self, label):
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        self.file = "components/gates/not.v"
+        self.file = query('Elements', 'file_path', 'name', 'Not')[0]
         self.label = label
         self.module = Module(self.file, self.label)
         self.pins = self.get_pins()
@@ -153,7 +154,7 @@ class AndElement(Element):
     def __init__(self, label):
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        self.file = "components/gates/and.v"
+        self.file = query('Elements', 'file_path', 'name', 'And')[0]
         self.label = label
         self.module = Module(self.file, self.label)
         self.pins = self.get_pins()
@@ -203,7 +204,7 @@ class OrElement(Element):
     def __init__(self, label):
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        self.file = "components/gates/or.v"
+        self.file = query('Elements', 'file_path', 'name', 'Or')[0]
         self.label = label
         self.module = Module(self.file, self.label)
         self.pins = self.get_pins()
@@ -254,7 +255,7 @@ class MuxElement(Element):
     def __init__(self, label):
         self.bounding_box = QRect(QPoint(), self.SIZE)
         self.oriantation = 0
-        self.file = "components/mux/mux_2_1.v"
+        self.file = query('Elements', 'file_path', 'name', 'Mux_2_1')[0]
         self.label = label
         self.module = Module(self.file, self.label)
         self.pins = self.get_pins()

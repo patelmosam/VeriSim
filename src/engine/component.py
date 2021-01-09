@@ -1,7 +1,7 @@
 import subprocess
-from engine.parser import verilog_parser
-from engine.ports import *
-from engine.utils import combine_ports
+from src.engine.parser import verilog_parser
+from src.engine.ports import *
+from src.engine.utils import combine_ports
 
 class Module:
     def __init__(self, file_path, label):

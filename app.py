@@ -1,7 +1,6 @@
 from PySide2 import QtWidgets
-from GUI.ui_mainWindow import Ui_MainWindow
-from GUI.elements import *
-from Resource.database import Init_db
+from src.GUI.ui_mainWindow import Ui_MainWindow
+from src.database import Init_db
 
 class VeriSimGUI(Ui_MainWindow, QtWidgets.QMainWindow):
     def __init__(self):

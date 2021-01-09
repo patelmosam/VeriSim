@@ -1,9 +1,13 @@
-GUI/drag_drop.py
+src/GUI/drag_drop.py
 __pycache__/
-engine/__pycache__/
-GUI/images
+src/engine/__pycache__/
+src/GUI/images
+dist
+build
 test.v
+setup.py
 a.out
 *.sqlite
 *.pyc
 *.out
+*.spec

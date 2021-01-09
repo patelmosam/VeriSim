@@ -2,8 +2,8 @@ from PySide2.QtWidgets import QWidget, QOpenGLWidget
 from PySide2.QtCore import QRect, QSize, Qt, QPoint, QMargins, QLine
 from PySide2.QtGui import QColor, QPen, QPainter, QMouseEvent, QPolygon, QPainterPath, QVector2D, QPainterPathStroker
 
-from GUI.elements import *
-from GUI.schematicUtils import *
+from src.GUI.elements import *
+from src.GUI.schematicUtils import *
 
 def _closest_point(line, point):
     d = QVector2D(line.p2() - line.p1())

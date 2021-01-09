@@ -14,7 +14,7 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
     QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
     QPixmap, QRadialGradient)
 from PySide2.QtWidgets import *
-from Resource.database import query
+from src.database import query
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):

@@ -17,6 +17,7 @@ def add_to_db(dbpath, name, filepath, Type):
 def Init_db(sqlpath, dbpath):
     sqlpath = Path(sqlpath)
     sqlitepath = Path(dbpath)
+    print(sqlitepath.exists(), sqlpath.exists())
 
     if sqlpath.exists():
         if not sqlitepath.exists():
@@ -27,7 +28,7 @@ def Init_db(sqlpath, dbpath):
 
         elif sqlitepath.stat().st_size == 0 or sqlitepath.stat().st_mtime < sqlpath.stat().st_mtime - 1:
             try:
-                sqlitenewpath = Path('Resource/elements_new.sqlite')
+                sqlitenewpath = Path('elements_new.sqlite')
                 cmd = 'sqlite3 ' + str(sqlitenewpath) + ' < ' + str(sqlpath)
                 error = os.system(cmd)
                 print(error)
@@ -42,6 +43,8 @@ def Init_db(sqlpath, dbpath):
             except Exception as e:
                 sqlitenewpath.unlink()
                 print('Error: ', e)
+        else:
+            print("Database Check: Ok")
 
 def query(table, column, column2=None, q1=None):
     results = []

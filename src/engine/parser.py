@@ -1,6 +1,6 @@
 # verilog parser v2.0
 
-from engine.ports import Port
+from src.engine.ports import Port
 
 def verilog_parser(file_path, label):
     inputs = []
